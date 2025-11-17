@@ -75,16 +75,47 @@
             mediaUploader.on('select', function() {
                 var attachment = mediaUploader.state().get('selection').first().toJSON();
                 $('#n8n_chat_widget_svg_icon').val(attachment.url);
-                
+
                 // Update preview
-                var previewHtml = '<div style="width: 60px; height: 60px; border: 1px solid #ddd; border-radius: 50%; overflow: hidden; display: flex; align-items: center; justify-content: center; background-color: ' + $('#n8n_chat_widget_color').val() + ';">';
-                previewHtml += '<img src="' + attachment.url + '" style="max-width: 60%; max-height: 60%;" alt="SVG Icon">';
-                previewHtml += '</div>';
-                
-                $('.svg-preview').html('<p class="description">Current icon:</p>' + previewHtml);
-                
+                const $svgPreview = $('.svg-preview');
+                $svgPreview.empty();
+
+                $svgPreview.append($('<p>', {class: 'description', text: 'Current icon:'}));
+
+                const $iconContainer = $('<div>', {
+                    css: {
+                        'width': '60px',
+                        'height': '60px',
+                        'border': '1px solid #ddd',
+                        'border-radius': '50%',
+                        'overflow': 'hidden',
+                        'display': 'flex',
+                        'align-items': 'center',
+                        'justify-content': 'center',
+                        'background-color': $('#n8n_chat_widget_color').val()
+                    }
+                });
+
+                const $iconImg = $('<img>', {
+                    src: attachment.url,
+                    alt: 'SVG Icon',
+                    css: {'max-width': '60%', 'max-height': '60%'}
+                });
+
+                $iconContainer.append($iconImg);
+                $svgPreview.append($iconContainer);
+
                 // Update preview button icon
-                $('#preview-button-icon').html('<img src="' + attachment.url + '" alt="Chat" style="max-width: 60%; max-height: 60%; filter: brightness(0) invert(1);">');
+                const $buttonIcon = $('<img>', {
+                    src: attachment.url,
+                    alt: 'Chat',
+                    css: {
+                        'max-width': '60%',
+                        'max-height': '60%',
+                        'filter': 'brightness(0) invert(1)'
+                    }
+                });
+                $('#preview-button-icon').empty().append($buttonIcon);
             });
             
             mediaUploader.open();

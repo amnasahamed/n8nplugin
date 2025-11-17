@@ -75,7 +75,8 @@
             } else {
                 $('.n8n-chat-widget-preview-icon').hide();
                 if (widgetSvgIcon) {
-                    $('.n8n-chat-widget-preview-svg-icon').html('<img src="' + widgetSvgIcon + '" alt="Chat">').show();
+                    const $svgIcon = $('.n8n-chat-widget-preview-svg-icon');
+                    $svgIcon.empty().append($('<img>', {src: widgetSvgIcon, alt: 'Chat'})).show();
                 } else {
                     $('.n8n-chat-widget-preview-icon').text('💬').show();
                 }
@@ -125,7 +126,8 @@
             mediaUploader.on('select', function() {
                 var attachment = mediaUploader.state().get('selection').first().toJSON();
                 $('#n8n_chat_widget_svg_icon').val(attachment.url);
-                $('.n8n-chat-widget-svg-preview').html('<img src="' + attachment.url + '" alt="SVG Icon">');
+                const $svgPreview = $('.n8n-chat-widget-svg-preview');
+                $svgPreview.empty().append($('<img>', {src: attachment.url, alt: 'SVG Icon'}));
                 updatePreview();
             });
             
