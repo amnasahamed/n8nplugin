@@ -113,18 +113,14 @@ function n8nchwi_enqueue_scripts() {
             'zoom' => $zoom
         ));
 
-        // Add inline CSS for custom color
+        // Set CSS custom properties for theme colors
         $color = esc_attr($options['color']);
         $hover_color = esc_attr(n8nchwi_adjust_color_brightness($options['color'], -15));
 
-        $custom_css = "
-            .n8n-chat-widget-button, .n8n-chat-widget-header {
-                background-color: {$color};
-            }
-            .n8n-chat-widget-button:hover {
-                background-color: {$hover_color};
-            }
-        ";
+        $custom_css = ":root {
+            --n8n-widget-color: {$color};
+            --n8n-widget-color-hover: {$hover_color};
+        }";
         wp_add_inline_style('n8n-chat-widget-style', $custom_css);
     }
 }
