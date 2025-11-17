@@ -1,0 +1,202 @@
+/* N8N Chat Widget Styles */
+.n8n-chat-widget-container {
+    position: fixed;
+    bottom: 20px;
+    z-index: 999999;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+}
+
+.n8n-chat-widget-position-right {
+    right: 20px;
+}
+
+.n8n-chat-widget-position-left {
+    left: 20px;
+}
+
+.n8n-chat-widget-button {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background-color: #45d3d3;
+    color: white;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s ease;
+    position: relative;
+    z-index: 1;
+}
+
+.n8n-chat-widget-button:hover {
+    background-color: #37b2b2;
+    transform: scale(1.05);
+}
+
+.n8n-chat-widget-open .n8n-chat-widget-button {
+    transform: scale(0.9);
+}
+
+.n8n-chat-widget-icon {
+    font-size: 24px;
+}
+
+.n8n-chat-widget-svg-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+}
+
+.n8n-chat-widget-svg-icon img,
+.n8n-chat-widget-svg-icon .svg-icon,
+.n8n-svg-wrapper img {
+    max-width: 60%;
+    max-height: 60%;
+    width: 24px !important;
+    height: 24px !important;
+    filter: brightness(0) invert(1); /* Makes the SVG white */
+    object-fit: contain;
+}
+
+.n8n-svg-wrapper {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.n8n-chat-widget-popup {
+    position: absolute;
+    bottom: 80px;
+    width: 350px;
+    height: 500px;
+    background-color: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 5px 25px rgba(0, 0, 0, 0.2);
+    display: none;
+    flex-direction: column;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    opacity: 0;
+    transform: translateY(20px);
+}
+
+.n8n-chat-widget-popup-open {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.n8n-chat-widget-position-right .n8n-chat-widget-popup {
+    right: 0;
+}
+
+.n8n-chat-widget-position-left .n8n-chat-widget-popup {
+    left: 0;
+}
+
+.n8n-chat-widget-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 20px;
+    background-color: #45d3d3;
+    color: white;
+}
+
+.n8n-chat-widget-title {
+    font-weight: bold;
+    font-size: 16px;
+}
+
+.n8n-chat-widget-close {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 24px;
+    cursor: pointer;
+    line-height: 1;
+    padding: 0;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    border-radius: 50%;
+}
+
+.n8n-chat-widget-close:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+.n8n-chat-widget-frame-container {
+    flex: 1;
+    position: relative;
+    overflow: hidden;
+}
+
+#n8n-chat-widget-iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border: none;
+    background-color: #fff;
+    transform-origin: top left;
+}
+
+/* Loading indicator */
+.n8n-chat-widget-loading {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #fff;
+    z-index: 1;
+}
+
+.n8n-chat-widget-loading::after {
+    content: "";
+    width: 40px;
+    height: 40px;
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid #45d3d3;
+    border-radius: 50%;
+    animation: n8n-chat-widget-spin 1s linear infinite;
+}
+
+@keyframes n8n-chat-widget-spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Mobile responsiveness */
+@media (max-width: 480px) {
+    .n8n-chat-widget-popup {
+        width: 100%;
+        height: 80vh;
+        position: fixed;
+        left: 0 !important;
+        right: 0 !important;
+        bottom: 0 !important;
+        border-radius: 12px 12px 0 0;
+    }
+    
+    .n8n-chat-widget-mobile .n8n-chat-widget-button {
+        width: 50px;
+        height: 50px;
+    }
+    
+    .n8n-chat-widget-mobile .n8n-chat-widget-icon {
+        font-size: 20px;
+    }
+} 

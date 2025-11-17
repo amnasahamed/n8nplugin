@@ -1,0 +1,411 @@
+/* Admin styles for n8n Chat Widget */
+
+/* Preview container styles */
+.n8n-chat-widget-preview {
+    max-width: 100%;
+    margin: 20px 0;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    position: relative;
+}
+
+.n8n-chat-widget-preview-header {
+    background-color: #f9f9f9;
+    padding: 10px 15px;
+    border-bottom: 1px solid #ddd;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.n8n-chat-widget-preview-title {
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.n8n-chat-widget-preview-device-selector {
+    display: flex;
+    gap: 10px;
+}
+
+.n8n-chat-widget-preview-device-button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 5px;
+    color: #555;
+    border-radius: 4px;
+}
+
+.n8n-chat-widget-preview-device-button:hover {
+    background-color: #f0f0f0;
+}
+
+.n8n-chat-widget-preview-device-button.active {
+    color: #0073aa;
+    background-color: #f0f7fb;
+}
+
+.n8n-chat-widget-preview-frame {
+    width: 100%;
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+.n8n-chat-widget-preview-frame.desktop {
+    height: 500px;
+}
+
+.n8n-chat-widget-preview-frame.tablet {
+    height: 600px;
+    max-width: 768px;
+    margin: 0 auto;
+}
+
+.n8n-chat-widget-preview-frame.mobile {
+    height: 600px;
+    max-width: 375px;
+    margin: 0 auto;
+}
+
+.n8n-chat-widget-preview-content {
+    width: 100%;
+    height: 100%;
+    border: none;
+    background-color: white;
+}
+
+/* Zoom animations */
+@keyframes n8n-zoom-in {
+    from {transform: scale(0.5); opacity: 0;}
+    to {transform: scale(1); opacity: 1;}
+}
+
+@keyframes n8n-zoom-out {
+    from {transform: scale(1); opacity: 1;}
+    to {transform: scale(0.5); opacity: 0;}
+}
+
+@keyframes n8n-fade-in {
+    from {opacity: 0;}
+    to {opacity: 1;}
+}
+
+@keyframes n8n-fade-out {
+    from {opacity: 1;}
+    to {opacity: 0;}
+}
+
+/* Preview widget styles */
+.n8n-chat-widget-preview-widget {
+    position: absolute;
+    bottom: 20px;
+    z-index: 10;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+}
+
+.n8n-chat-widget-preview-widget.left {
+    left: 20px;
+}
+
+.n8n-chat-widget-preview-widget.right {
+    right: 20px;
+}
+
+.n8n-chat-widget-preview-popup {
+    width: 320px;
+    height: 400px;
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0 5px 25px rgba(0, 0, 0, 0.2);
+    overflow: hidden;
+    display: none;
+    flex-direction: column;
+    animation: n8n-zoom-in 0.3s ease forwards;
+}
+
+.n8n-chat-widget-preview-popup.closing {
+    animation: n8n-zoom-out 0.3s ease forwards;
+}
+
+.n8n-chat-widget-preview-popup.open {
+    display: flex;
+}
+
+.n8n-chat-widget-preview-header-inner {
+    padding: 12px 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.n8n-chat-widget-preview-title-inner {
+    font-weight: 600;
+    color: white;
+}
+
+.n8n-chat-widget-preview-close {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 20px;
+    cursor: pointer;
+    padding: 0;
+    line-height: 1;
+}
+
+.n8n-chat-widget-preview-body {
+    flex: 1;
+    background-color: #f9f9f9;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    text-align: center;
+    color: #666;
+}
+
+.n8n-chat-widget-preview-button {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    margin-top: 10px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+}
+
+.n8n-chat-widget-preview-icon {
+    font-size: 24px;
+}
+
+.n8n-chat-widget-preview-svg-icon {
+    width: 24px;
+    height: 24px;
+}
+
+.n8n-chat-widget-preview-svg-icon img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+/* Icon settings */
+.n8n-chat-widget-icon-settings {
+    margin-top: 10px;
+}
+
+.n8n-chat-widget-icon-type-selector {
+    margin-bottom: 15px;
+}
+
+.n8n-chat-widget-icon-option {
+    margin-bottom: 15px;
+    padding-left: 20px;
+}
+
+.n8n-chat-widget-emoji-selector {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    margin-top: 10px;
+}
+
+.n8n-chat-widget-emoji-option {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 20px;
+    background-color: white;
+}
+
+.n8n-chat-widget-emoji-option:hover,
+.n8n-chat-widget-emoji-option.selected {
+    background-color: #f0f7fb;
+    border-color: #0073aa;
+}
+
+.n8n-chat-widget-svg-preview {
+    margin-top: 10px;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    display: inline-block;
+}
+
+.n8n-chat-widget-svg-preview img {
+    max-width: 100px;
+    max-height: 100px;
+}
+
+/* Settings tabs */
+.n8n-chat-widget-tabs {
+    margin-bottom: 20px;
+    border-bottom: 1px solid #ccc;
+}
+
+.n8n-chat-widget-tab {
+    display: inline-block;
+    padding: 10px 15px;
+    margin-right: 5px;
+    margin-bottom: -1px;
+    border: 1px solid transparent;
+    border-top-left-radius: 4px;
+    border-top-right-radius: 4px;
+    cursor: pointer;
+    font-weight: 500;
+}
+
+.n8n-chat-widget-tab.active {
+    border-color: #ccc;
+    border-bottom-color: #f1f1f1;
+    background-color: #f1f1f1;
+}
+
+.n8n-chat-widget-tab-content {
+    display: none;
+    padding: 20px;
+    background-color: #f1f1f1;
+    border-radius: 0 4px 4px 4px;
+}
+
+.n8n-chat-widget-tab-content.active {
+    display: block;
+}
+
+/* Help section */
+.n8n-chat-widget-help-section {
+    margin-top: 30px;
+    padding: 20px;
+    background-color: #f9f9f9;
+    border-left: 4px solid #0073aa;
+    border-radius: 4px;
+}
+
+.n8n-chat-widget-help-section h3 {
+    margin-top: 0;
+    color: #0073aa;
+}
+
+.n8n-chat-widget-help-links {
+    margin-top: 15px;
+}
+
+.n8n-chat-widget-help-link {
+    display: inline-block;
+    margin-right: 20px;
+    text-decoration: none;
+}
+
+.n8n-chat-widget-help-link .dashicons {
+    margin-right: 5px;
+    vertical-align: middle;
+}
+
+/* Responsive settings */
+@media (max-width: 782px) {
+    .n8n-chat-widget-preview-frame.desktop {
+        height: 400px;
+    }
+    
+    .n8n-chat-widget-preview-frame.tablet {
+        height: 500px;
+    }
+    
+    .n8n-chat-widget-preview-frame.mobile {
+        height: 500px;
+    }
+}
+
+/* Additional styles from the admin class */
+@keyframes n8n-chat-widget-spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+@media screen and (max-width: 1200px) {
+    .n8n-admin-layout {
+        flex-direction: column;
+    }
+    .n8n-settings-column, .n8n-preview-column {
+        width: 100% !important;
+    }
+    .n8n-preview-column {
+        margin-top: 30px;
+    }
+}
+
+/* WordPress color picker fix for live preview */
+.wp-picker-holder {
+    position: absolute;
+    z-index: 100;
+}
+
+/* Restore zoom slider width */
+.zoom-control input[type="range"] {
+    max-width: 400px;
+    width: 100%;
+}
+
+/* Better form field spacing */
+.n8n-setting-field {
+    margin-bottom: 20px !important;
+}
+
+/* Better label styling */
+.n8n-setting-field label {
+    margin-bottom: 8px !important;
+}
+
+/* Equal height containers using flexbox */
+.n8n-settings-container, .n8n-preview-container {
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    box-shadow: 0 1px 1px rgba(0,0,0,.04);
+    padding: 30px;
+}
+
+/* Make the admin layout take full height */
+.n8n-admin-layout {
+    min-height: 800px;
+    align-items: stretch;
+}
+
+/* Ensure consistent preview dimensions */
+.n8n-chat-widget-preview {
+    width: 350px !important;
+    height: 500px !important;
+    flex-shrink: 0 !important;
+    flex-grow: 0 !important;
+    margin: 0 auto !important;
+}
+
+.n8n-preview-wrapper {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    height: auto !important;
+}
+
+/* Button preview container */
+.button-preview-container {
+    width: 350px !important;
+    margin: 20px auto 0 !important;
+    padding: 15px !important;
+    background: #f8f8f8 !important;
+    border-radius: 8px !important;
+    flex-shrink: 0 !important;
+} 
