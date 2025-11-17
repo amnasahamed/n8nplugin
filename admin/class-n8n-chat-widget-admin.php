@@ -247,8 +247,7 @@ class N8NCHWI_Admin {
                     <li><?php esc_html_e('Activate your workflow and copy the Chat URL', 'n8n-chat-widget'); ?></li>
                 </ol>
                 <p>
-                    <a href="https://docs.n8n.io/integrations/builtin/core-nodes/n8n-nodes-langchain.chattrigger/" target="_blank" style="margin-right: 15px;"><span class="dashicons dashicons-media-document" style="margin-right: 3px;"></span><?php esc_html_e('n8n Chat Trigger Documentation', 'n8n-chat-widget'); ?></a>
-                    <a href="https://www.youtube.com/watch?v=qirFuwSgrfw" target="_blank"><span class="dashicons dashicons-video-alt3" style="margin-right: 3px;"></span><?php esc_html_e('Video Tutorial', 'n8n-chat-widget'); ?></a>
+                    <a href="https://docs.n8n.io/integrations/builtin/core-nodes/n8n-nodes-langchain.chattrigger/" target="_blank"><span class="dashicons dashicons-media-document" style="margin-right: 3px;"></span><?php esc_html_e('View n8n Chat Trigger Documentation', 'n8n-chat-widget'); ?></a>
                 </p>
             </div>
         </details>
@@ -649,8 +648,7 @@ class N8NCHWI_Admin {
         echo '<li>' . esc_html__('Activate your workflow and copy the Chat URL', 'n8n-chat-widget') . '</li>';
         echo '</ol>';
         echo '<p>';
-        echo '<a href="https://docs.n8n.io/integrations/builtin/core-nodes/n8n-nodes-langchain.chattrigger/" target="_blank" style="margin-right: 15px;"><span class="dashicons dashicons-media-document" style="margin-right: 3px;"></span>' . esc_html__('n8n Chat Trigger Documentation', 'n8n-chat-widget') . '</a>';
-        echo '<a href="https://www.youtube.com/watch?v=qirFuwSgrfw" target="_blank"><span class="dashicons dashicons-video-alt3" style="margin-right: 3px;"></span>' . esc_html__('Video Tutorial', 'n8n-chat-widget') . '</a>';
+        echo '<a href="https://docs.n8n.io/integrations/builtin/core-nodes/n8n-nodes-langchain.chattrigger/" target="_blank"><span class="dashicons dashicons-media-document" style="margin-right: 3px;"></span>' . esc_html__('View n8n Chat Trigger Documentation', 'n8n-chat-widget') . '</a>';
         echo '</p>';
         echo '</div>';
         echo '</details>';
