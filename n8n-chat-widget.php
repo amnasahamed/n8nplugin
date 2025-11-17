@@ -63,41 +63,64 @@ function n8nchwi_init_admin() {
 add_action('init', 'n8nchwi_init_admin');
 
 /**
+ * Get all widget options at once (cached for performance)
+ *
+ * @return array All widget options with defaults
+ */
+function n8nchwi_get_options() {
+    static $options = null;
+
+    if ($options === null) {
+        $options = array(
+            'enabled' => get_option('n8n_chat_widget_enabled', 'yes'),
+            'url' => get_option('n8n_chat_widget_url', ''),
+            'position' => get_option('n8n_chat_widget_position', 'right'),
+            'title' => get_option('n8n_chat_widget_title', 'Chat Support'),
+            'color' => get_option('n8n_chat_widget_color', '#45d3d3'),
+            'icon' => get_option('n8n_chat_widget_icon', '💬'),
+            'icon_type' => get_option('n8n_chat_widget_icon_type', 'emoji'),
+            'svg_icon' => get_option('n8n_chat_widget_svg_icon', ''),
+            'zoom' => get_option('n8n_chat_widget_zoom', '100'),
+        );
+    }
+
+    return $options;
+}
+
+/**
  * Enqueue frontend scripts and styles
  */
 function n8nchwi_enqueue_scripts() {
+    $options = n8nchwi_get_options();
+
     // Only enqueue if the widget is enabled
-    if (get_option('n8n_chat_widget_enabled') === 'yes') {
+    if ($options['enabled'] === 'yes') {
         wp_enqueue_style('n8n-chat-widget-style', N8N_CHAT_WIDGET_URL . 'assets/css/n8n-chat-widget.css', array(), N8N_CHAT_WIDGET_VERSION);
         wp_enqueue_script('n8n-chat-widget-script', N8N_CHAT_WIDGET_URL . 'assets/js/n8n-chat-widget.js', array('jquery'), N8N_CHAT_WIDGET_VERSION, true);
-        
-        // Get zoom setting
-        $zoom = get_option('n8n_chat_widget_zoom', '100');
-        $zoom = intval($zoom);
-        if ($zoom < 50) $zoom = 50;
-        if ($zoom > 150) $zoom = 150;
-        
+
+        // Validate and normalize zoom setting
+        $zoom = max(50, min(150, intval($options['zoom'])));
+
         // Pass the chat settings to JavaScript
         wp_localize_script('n8n-chat-widget-script', 'n8nchwiData', array(
-            'chatUrl' => esc_url(get_option('n8n_chat_widget_url')),
-            'position' => esc_attr(get_option('n8n_chat_widget_position', 'right')),
-            'title' => esc_attr(get_option('n8n_chat_widget_title', 'Chat Support')),
-            'color' => esc_attr(get_option('n8n_chat_widget_color', '#45d3d3')),
-            'icon' => esc_attr(get_option('n8n_chat_widget_icon', '💬')),
-            'iconType' => esc_attr(get_option('n8n_chat_widget_icon_type', 'emoji')),
-            'svgIcon' => esc_attr(get_option('n8n_chat_widget_svg_icon', '')),
+            'chatUrl' => esc_url($options['url']),
+            'position' => esc_attr($options['position']),
+            'title' => esc_attr($options['title']),
+            'color' => esc_attr($options['color']),
+            'icon' => esc_attr($options['icon']),
+            'iconType' => esc_attr($options['icon_type']),
+            'svgIcon' => esc_attr($options['svg_icon']),
             'zoom' => $zoom
         ));
-        
-        // Add inline CSS for custom color
-        $custom_css = "
-            .n8n-chat-widget-button, .n8n-chat-widget-header {
-                background-color: " . esc_attr(get_option('n8n_chat_widget_color', '#45d3d3')) . ";
-            }
-            .n8n-chat-widget-button:hover {
-                background-color: " . esc_attr(n8nchwi_adjust_color_brightness(get_option('n8n_chat_widget_color', '#45d3d3'), -15)) . ";
-            }
-        ";
+
+        // Set CSS custom properties for theme colors
+        $color = esc_attr($options['color']);
+        $hover_color = esc_attr(n8nchwi_adjust_color_brightness($options['color'], -15));
+
+        $custom_css = ":root {
+            --n8n-widget-color: {$color};
+            --n8n-widget-color-hover: {$hover_color};
+        }";
         wp_add_inline_style('n8n-chat-widget-style', $custom_css);
     }
 }
@@ -107,8 +130,12 @@ add_action('wp_enqueue_scripts', 'n8nchwi_enqueue_scripts');
  * Add the chat widget to the footer
  */
 function n8nchwi_add_to_footer() {
+    $options = n8nchwi_get_options();
+
     // Only add if the widget is enabled and URL is set
-    if (get_option('n8n_chat_widget_enabled') === 'yes' && !empty(get_option('n8n_chat_widget_url'))) {
+    if ($options['enabled'] === 'yes' && !empty($options['url'])) {
+        // Pass options to template to avoid additional get_option() calls
+        $n8nchwi_options = $options;
         include N8N_CHAT_WIDGET_PATH . 'public/partials/n8n-chat-widget-public-display.php';
     }
 }

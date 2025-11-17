@@ -69,58 +69,122 @@
         // Handle SVG upload
         $('#upload_svg_button').on('click', function(e) {
             e.preventDefault();
-            
+
             // Create a media frame
             const frame = wp.media({
                 title: 'Select or Upload SVG Icon',
                 button: {
                     text: 'Use this icon'
                 },
-                multiple: false
+                multiple: false,
+                library: {
+                    type: 'image/svg+xml'
+                }
             });
-            
+
             // When an image is selected in the media frame...
             frame.on('select', function() {
                 // Get media attachment details from the frame state
                 const attachment = frame.state().get('selection').first().toJSON();
-                
-                // Only allow SVG files
-                if (attachment.subtype !== 'svg+xml') {
-                    alert('Please select an SVG file.');
+
+                // Validate attachment exists
+                if (!attachment || !attachment.url) {
+                    alert('Error: Invalid attachment selected.');
                     return;
                 }
-                
+
+                // Only allow SVG files
+                if (attachment.subtype !== 'svg+xml' && attachment.type !== 'image/svg+xml') {
+                    alert('Please select an SVG file. Other image formats are not supported.');
+                    return;
+                }
+
+                // Additional file size check (limit to 1MB for SVG)
+                if (attachment.filesizeInBytes && attachment.filesizeInBytes > 1048576) {
+                    alert('SVG file is too large. Please select a file smaller than 1MB.');
+                    return;
+                }
+
                 // Set the value of the input field
                 $('#n8n_chat_widget_svg_icon').val(attachment.url);
                 
                 // Update button preview too if svg is selected
                 if ($('input[name="n8n_chat_widget_icon_type"]:checked').val() === 'svg') {
-                    $('#preview-button-icon').html(`<img src="${attachment.url}" alt="Icon" style="max-width: 60%; max-height: 60%; filter: brightness(0) invert(1);">`);
+                    const img = $('<img>', {
+                        src: attachment.url,
+                        alt: 'Icon',
+                        css: {
+                            'max-width': '60%',
+                            'max-height': '60%',
+                            'filter': 'brightness(0) invert(1)'
+                        }
+                    });
+                    $('#preview-button-icon').empty().append(img);
                 }
                 
                 // Update or create the preview
                 if ($('.svg-preview').length) {
                     // The preview exists, update it
                     // Check if we need to reload the page to refresh the attachment ID
-                    $('.svg-preview').html(`
-                        <p class="description">Current icon:</p>
-                        <div style="width: 60px; height: 60px; border: 1px solid #ddd; border-radius: 50%; overflow: hidden; display: flex; align-items: center; justify-content: center; background-color: ${$('#n8n_chat_widget_color').val()};">
-                            <img src="${attachment.url}" alt="SVG Icon" style="max-width: 60%; max-height: 60%;">
-                        </div>
-                        <p class="description" style="color: #d63638;">Save settings to properly display the icon.</p>
-                    `);
+                    const $preview = $('.svg-preview');
+                    $preview.empty();
+
+                    $preview.append($('<p>', {class: 'description', text: 'Current icon:'}));
+
+                    const $iconContainer = $('<div>', {
+                        css: {
+                            'width': '60px',
+                            'height': '60px',
+                            'border': '1px solid #ddd',
+                            'border-radius': '50%',
+                            'overflow': 'hidden',
+                            'display': 'flex',
+                            'align-items': 'center',
+                            'justify-content': 'center',
+                            'background-color': $('#n8n_chat_widget_color').val()
+                        }
+                    });
+
+                    const $iconImg = $('<img>', {
+                        src: attachment.url,
+                        alt: 'SVG Icon',
+                        css: {'max-width': '60%', 'max-height': '60%'}
+                    });
+
+                    $iconContainer.append($iconImg);
+                    $preview.append($iconContainer);
+                    $preview.append($('<p>', {class: 'description', css: {'color': '#d63638'}, text: 'Save settings to properly display the icon.'}));
                 } else {
                     // Create a new preview
-                    const previewHtml = `
-                        <div class="svg-preview" style="margin: 10px 0;">
-                            <p class="description">Current icon:</p>
-                            <div style="width: 60px; height: 60px; border: 1px solid #ddd; border-radius: 50%; overflow: hidden; display: flex; align-items: center; justify-content: center; background-color: ${$('#n8n_chat_widget_color').val()};">
-                                <img src="${attachment.url}" alt="SVG Icon" style="max-width: 60%; max-height: 60%;">
-                            </div>
-                            <p class="description" style="color: #d63638;">Save settings to properly display the icon.</p>
-                        </div>
-                    `;
-                    $('.svg-upload-container').after(previewHtml);
+                    const $newPreview = $('<div>', {class: 'svg-preview', css: {'margin': '10px 0'}});
+
+                    $newPreview.append($('<p>', {class: 'description', text: 'Current icon:'}));
+
+                    const $iconContainer = $('<div>', {
+                        css: {
+                            'width': '60px',
+                            'height': '60px',
+                            'border': '1px solid #ddd',
+                            'border-radius': '50%',
+                            'overflow': 'hidden',
+                            'display': 'flex',
+                            'align-items': 'center',
+                            'justify-content': 'center',
+                            'background-color': $('#n8n_chat_widget_color').val()
+                        }
+                    });
+
+                    const $iconImg = $('<img>', {
+                        src: attachment.url,
+                        alt: 'SVG Icon',
+                        css: {'max-width': '60%', 'max-height': '60%'}
+                    });
+
+                    $iconContainer.append($iconImg);
+                    $newPreview.append($iconContainer);
+                    $newPreview.append($('<p>', {class: 'description', css: {'color': '#d63638'}, text: 'Save settings to properly display the icon.'}));
+
+                    $('.svg-upload-container').after($newPreview);
                 }
             });
             
@@ -187,8 +251,10 @@
         // Handle position changes for the preview text
         $('#n8n_chat_widget_position').on('change', function() {
             const position = $(this).val();
-            const positionText = n8nChatWidgetSettings.positionTemplate.replace('%s', position);
-            $('#preview-position-text').text(positionText);
+            if (typeof n8nchwiSettings !== 'undefined' && n8nchwiSettings.positionTemplate) {
+                const positionText = n8nchwiSettings.positionTemplate.replace('%s', position);
+                $('#preview-position-text').text(positionText);
+            }
         });
         
         // Handle iframe load error
@@ -230,8 +296,50 @@
             }, 1000);
         });
         
+        // Allow Enter key to submit the form
+        $('#n8n_chat_widget_url').on('keypress', function(e) {
+            if (e.which === 13) { // Enter key
+                e.preventDefault();
+                $('#load-preview-button').click();
+                return false;
+            }
+        });
+
+        // URL validation
+        $('#n8n_chat_widget_url').on('blur', function() {
+            const url = $(this).val().trim();
+            if (url && !isValidUrl(url)) {
+                $(this).css('border-color', '#d63638');
+                if (!$('#url-error-message').length) {
+                    $(this).after('<p id="url-error-message" class="description" style="color: #d63638;">Please enter a valid URL starting with http:// or https://</p>');
+                }
+            } else {
+                $(this).css('border-color', '');
+                $('#url-error-message').remove();
+            }
+        });
+
+        // URL validation helper function
+        function isValidUrl(string) {
+            try {
+                const url = new URL(string);
+                return url.protocol === 'http:' || url.protocol === 'https:';
+            } catch (_) {
+                return false;
+            }
+        }
+
         // Also handle the form submission to update the preview immediately if URL changed
-        $('#n8n-chat-settings-form').on('submit', function() {
+        $('#n8n-chat-settings-form').on('submit', function(e) {
+            // Validate URL before submitting
+            const url = $('#n8n_chat_widget_url').val().trim();
+            if (url && !isValidUrl(url)) {
+                e.preventDefault();
+                alert('Please enter a valid URL starting with http:// or https://');
+                $('#n8n_chat_widget_url').focus();
+                return false;
+            }
+
             // Store the current URL to check if it changed
             const currentUrl = $('#n8n_chat_widget_url').val();
             const currentUrlField = $('<input type="hidden" name="previous_url" />').val(currentUrl);

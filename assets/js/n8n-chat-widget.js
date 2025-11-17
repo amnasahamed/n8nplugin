@@ -103,7 +103,11 @@
         $popup.css('display', 'flex');
         $container.addClass('n8n-chat-widget-open');
         isWidgetOpen = true;
-        
+
+        // Update ARIA attributes
+        $button.attr('aria-expanded', 'true');
+        $popup.attr('aria-hidden', 'false');
+
         // Only load the iframe content when opened for the first time
         if (!hasLoaded) {
             var chatUrl = $iframe.attr('data-src');
@@ -121,6 +125,8 @@
         // Animate opening
         setTimeout(function() {
             $popup.addClass('n8n-chat-widget-popup-open');
+            // Set focus to close button for accessibility
+            $closeBtn.focus();
         }, 10);
     }
 
@@ -130,11 +136,17 @@
     function closeChatWidget() {
         $popup.removeClass('n8n-chat-widget-popup-open');
         $container.removeClass('n8n-chat-widget-open');
-        
+
+        // Update ARIA attributes
+        $button.attr('aria-expanded', 'false');
+        $popup.attr('aria-hidden', 'true');
+
         // Wait for animation to complete before hiding
         setTimeout(function() {
             $popup.css('display', 'none');
             isWidgetOpen = false;
+            // Return focus to the button for accessibility
+            $button.focus();
         }, 300);
     }
 
