@@ -38,43 +38,13 @@ class N8NCHWI_Admin {
         // Add custom admin styles
         wp_enqueue_style('n8n-chat-widget-admin-css', N8N_CHAT_WIDGET_URL . 'admin/css/n8n-chat-widget-admin.css', array(), N8N_CHAT_WIDGET_VERSION);
         
-        // Add custom admin script
+        // Add custom admin script (consolidated - includes all admin functionality)
         wp_enqueue_script('n8n-chat-widget-admin-js', N8N_CHAT_WIDGET_URL . 'admin/js/n8n-chat-widget-admin.js', array('jquery', 'wp-color-picker'), N8N_CHAT_WIDGET_VERSION, true);
-        
-        // Add preview script
-        wp_enqueue_script('n8n-chat-widget-preview-js', N8N_CHAT_WIDGET_URL . 'admin/js/n8n-chat-widget-preview.js', array('jquery'), N8N_CHAT_WIDGET_VERSION, true);
-        
-        // Add extra admin functionality
-        wp_enqueue_script('n8n-chat-widget-admin-extra-js', N8N_CHAT_WIDGET_URL . 'admin/js/n8n-chat-widget-admin-extra.js', array('jquery', 'wp-color-picker'), N8N_CHAT_WIDGET_VERSION, true);
-        
+
         // Localize script with translated strings
         wp_localize_script('n8n-chat-widget-admin-js', 'n8nchwiSettings', array(
             'positionTemplate' => /* translators: %s: position of the chat button (left or right) */ esc_html__('This chat button will appear in the bottom %s corner of your website.', 'n8n-chat-widget')
         ));
-        
-        // Add zoom animations via wp_add_inline_style
-        $zoom_animations = "
-            @keyframes n8n-zoom-in {
-                from {transform: scale(0.5); opacity: 0;}
-                to {transform: scale(1); opacity: 1;}
-            }
-            
-            @keyframes n8n-zoom-out {
-                from {transform: scale(1); opacity: 1;}
-                to {transform: scale(0.5); opacity: 0;}
-            }
-            
-            @keyframes n8n-fade-in {
-                from {opacity: 0;}
-                to {opacity: 1;}
-            }
-            
-            @keyframes n8n-fade-out {
-                from {opacity: 1;}
-                to {opacity: 0;}
-            }
-        ";
-        wp_add_inline_style('n8n-chat-widget-admin-css', $zoom_animations);
     }
 
     /**

@@ -296,6 +296,15 @@
             }, 1000);
         });
         
+        // Allow Enter key to submit the form
+        $('#n8n_chat_widget_url').on('keypress', function(e) {
+            if (e.which === 13) { // Enter key
+                e.preventDefault();
+                $('#load-preview-button').click();
+                return false;
+            }
+        });
+
         // URL validation
         $('#n8n_chat_widget_url').on('blur', function() {
             const url = $(this).val().trim();
