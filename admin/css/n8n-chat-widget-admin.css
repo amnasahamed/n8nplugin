@@ -1,14 +1,115 @@
 /* Admin styles for n8n Chat Widget */
 
+/* Modern Admin Variables */
+:root {
+    --n8n-admin-primary: #45d3d3;
+    --n8n-admin-primary-dark: #37b2b2;
+    --n8n-admin-border: #e5e7eb;
+    --n8n-admin-bg: #f9fafb;
+    --n8n-admin-shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.05);
+    --n8n-admin-shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
+    --n8n-admin-shadow-lg: 0 10px 30px rgba(0, 0, 0, 0.12);
+    --n8n-admin-radius: 12px;
+    --n8n-admin-transition: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Modern card styling for settings and preview containers */
+.n8n-settings-container,
+.n8n-preview-container {
+    background: white;
+    border: 1px solid var(--n8n-admin-border);
+    border-radius: var(--n8n-admin-radius);
+    box-shadow: var(--n8n-admin-shadow-sm);
+    transition: box-shadow var(--n8n-admin-transition);
+}
+
+.n8n-settings-container:hover,
+.n8n-preview-container:hover {
+    box-shadow: var(--n8n-admin-shadow-md);
+}
+
+/* Form field improvements */
+.n8n-setting-field {
+    margin-bottom: 24px !important;
+    animation: fadeInUp 0.3s ease-out;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.n8n-setting-field label {
+    display: block;
+    font-weight: 600;
+    font-size: 14px;
+    margin-bottom: 8px !important;
+    color: #374151;
+}
+
+.n8n-setting-field input[type="text"],
+.n8n-setting-field input[type="url"],
+.n8n-setting-field input[type="number"],
+.n8n-setting-field select {
+    border: 2px solid var(--n8n-admin-border);
+    border-radius: 8px;
+    padding: 10px 14px;
+    transition: all var(--n8n-admin-transition);
+    font-size: 14px;
+}
+
+.n8n-setting-field input[type="text"]:focus,
+.n8n-setting-field input[type="url"]:focus,
+.n8n-setting-field input[type="number"]:focus,
+.n8n-setting-field select:focus {
+    border-color: var(--n8n-admin-primary);
+    box-shadow: 0 0 0 3px rgba(69, 211, 211, 0.1);
+    outline: none;
+}
+
+/* Button improvements */
+.button-primary,
+#preview-save-changes {
+    background: linear-gradient(135deg, var(--n8n-admin-primary) 0%, var(--n8n-admin-primary-dark) 100%) !important;
+    border: none !important;
+    border-radius: 8px !important;
+    padding: 10px 20px !important;
+    font-weight: 600 !important;
+    box-shadow: var(--n8n-admin-shadow-sm) !important;
+    transition: all var(--n8n-admin-transition) !important;
+}
+
+.button-primary:hover,
+#preview-save-changes:hover {
+    transform: translateY(-1px);
+    box-shadow: var(--n8n-admin-shadow-md) !important;
+}
+
+.button-primary:active,
+#preview-save-changes:active {
+    transform: translateY(0);
+}
+
 /* Preview container styles */
 .n8n-chat-widget-preview {
     max-width: 100%;
     margin: 20px 0;
-    border: 1px solid #ddd;
-    border-radius: 8px;
+    border: 1px solid var(--n8n-admin-border);
+    border-radius: var(--n8n-admin-radius);
     overflow: hidden;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    box-shadow: var(--n8n-admin-shadow-md);
     position: relative;
+    transition: all var(--n8n-admin-transition);
+}
+
+.n8n-chat-widget-preview:hover {
+    box-shadow: var(--n8n-admin-shadow-lg);
 }
 
 .n8n-chat-widget-preview-header {
@@ -213,27 +314,39 @@
 .n8n-chat-widget-emoji-selector {
     display: flex;
     flex-wrap: wrap;
-    gap: 5px;
+    gap: 8px;
     margin-top: 10px;
 }
 
-.n8n-chat-widget-emoji-option {
-    width: 40px;
-    height: 40px;
+.n8n-chat-widget-emoji-option,
+.icon-option {
+    width: 48px;
+    height: 48px;
     display: flex;
     align-items: center;
     justify-content: center;
-    border: 1px solid #ddd;
-    border-radius: 4px;
+    border: 2px solid var(--n8n-admin-border);
+    border-radius: 10px;
     cursor: pointer;
-    font-size: 20px;
+    font-size: 22px;
     background-color: white;
+    transition: all var(--n8n-admin-transition);
+    position: relative;
 }
 
 .n8n-chat-widget-emoji-option:hover,
-.n8n-chat-widget-emoji-option.selected {
-    background-color: #f0f7fb;
-    border-color: #0073aa;
+.icon-option:hover {
+    background: linear-gradient(135deg, rgba(69, 211, 211, 0.1) 0%, rgba(55, 178, 178, 0.1) 100%);
+    border-color: var(--n8n-admin-primary);
+    transform: translateY(-2px);
+    box-shadow: var(--n8n-admin-shadow-sm);
+}
+
+.n8n-chat-widget-emoji-option.selected,
+.icon-option.selected {
+    background: linear-gradient(135deg, rgba(69, 211, 211, 0.15) 0%, rgba(55, 178, 178, 0.15) 100%);
+    border-color: var(--n8n-admin-primary);
+    box-shadow: 0 0 0 3px rgba(69, 211, 211, 0.1);
 }
 
 .n8n-chat-widget-svg-preview {
@@ -285,17 +398,27 @@
 }
 
 /* Help section */
-.n8n-chat-widget-help-section {
-    margin-top: 30px;
-    padding: 20px;
-    background-color: #f9f9f9;
-    border-left: 4px solid #0073aa;
-    border-radius: 4px;
+.n8n-chat-widget-help-section,
+.n8n-chat-support-links {
+    margin-top: 20px;
+    padding: 20px 24px;
+    background: linear-gradient(135deg, rgba(69, 211, 211, 0.05) 0%, rgba(55, 178, 178, 0.05) 100%);
+    border-left: 4px solid var(--n8n-admin-primary);
+    border-radius: var(--n8n-admin-radius);
+    box-shadow: var(--n8n-admin-shadow-sm);
+    transition: all var(--n8n-admin-transition);
+}
+
+.n8n-chat-widget-help-section:hover,
+.n8n-chat-support-links:hover {
+    box-shadow: var(--n8n-admin-shadow-md);
+    transform: translateX(2px);
 }
 
 .n8n-chat-widget-help-section h3 {
     margin-top: 0;
-    color: #0073aa;
+    color: var(--n8n-admin-primary-dark);
+    font-weight: 600;
 }
 
 .n8n-chat-widget-help-links {
@@ -352,10 +475,46 @@
     z-index: 100;
 }
 
-/* Restore zoom slider width */
+/* Restore zoom slider width with beautiful styling */
+.zoom-control {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
 .zoom-control input[type="range"] {
     max-width: 400px;
     width: 100%;
+    height: 6px;
+    border-radius: 3px;
+    background: linear-gradient(to right, var(--n8n-admin-primary) 0%, var(--n8n-admin-primary) 50%, var(--n8n-admin-border) 50%, var(--n8n-admin-border) 100%);
+    outline: none;
+    transition: all var(--n8n-admin-transition);
+}
+
+.zoom-control input[type="range"]::-webkit-slider-thumb {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: white;
+    border: 3px solid var(--n8n-admin-primary);
+    cursor: pointer;
+    box-shadow: var(--n8n-admin-shadow-sm);
+    transition: all var(--n8n-admin-transition);
+}
+
+.zoom-control input[type="range"]::-webkit-slider-thumb:hover {
+    transform: scale(1.2);
+    box-shadow: var(--n8n-admin-shadow-md);
+}
+
+.zoom-control input[type="number"] {
+    border: 2px solid var(--n8n-admin-border);
+    border-radius: 8px;
+    padding: 8px 12px;
+    text-align: center;
+    font-weight: 600;
+    color: var(--n8n-admin-primary-dark);
 }
 
 /* Better form field spacing */
