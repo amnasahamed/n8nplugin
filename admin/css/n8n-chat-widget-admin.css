@@ -1188,4 +1188,101 @@
 
 .n8n-settings-group-engagement .n8n-settings-group-header .dashicons {
     color: #f59e0b;
+}
+
+/* Schedule group styling */
+.n8n-settings-group-schedule .n8n-settings-group-header {
+    background: linear-gradient(135deg, rgba(99, 102, 241, 0.08) 0%, rgba(79, 70, 229, 0.05) 100%);
+}
+
+.n8n-settings-group-schedule .n8n-settings-group-header .dashicons {
+    color: #6366f1;
+}
+
+/* Days selector */
+.n8n-days-selector {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.n8n-day-option {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    border: 2px solid var(--n8n-admin-border);
+    border-radius: var(--n8n-admin-radius);
+    cursor: pointer;
+    transition: all var(--n8n-admin-transition);
+    background: white;
+}
+
+.n8n-day-option:hover {
+    border-color: var(--n8n-admin-primary);
+    background: rgba(69, 211, 211, 0.05);
+}
+
+.n8n-day-option.selected {
+    border-color: var(--n8n-admin-primary);
+    background: rgba(69, 211, 211, 0.15);
+}
+
+.n8n-day-option input {
+    display: none;
+}
+
+.n8n-day-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: #666;
+}
+
+.n8n-day-option.selected .n8n-day-label {
+    color: var(--n8n-admin-primary-dark);
+}
+
+/* Time range */
+.n8n-time-range {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.n8n-time-range input[type="time"] {
+    padding: 10px 12px;
+    border: 2px solid var(--n8n-admin-border);
+    border-radius: var(--n8n-admin-radius);
+    font-size: 14px;
+    transition: all var(--n8n-admin-transition);
+}
+
+.n8n-time-range input[type="time"]:focus {
+    border-color: var(--n8n-admin-primary);
+    box-shadow: 0 0 0 3px rgba(69, 211, 211, 0.1);
+    outline: none;
+}
+
+.n8n-time-separator {
+    font-size: 14px;
+    color: #666;
+    font-weight: 500;
+}
+
+/* Select styling */
+.n8n-select {
+    padding: 10px 12px;
+    border: 2px solid var(--n8n-admin-border);
+    border-radius: var(--n8n-admin-radius);
+    font-size: 14px;
+    min-width: 200px;
+    transition: all var(--n8n-admin-transition);
+    background: white;
+}
+
+.n8n-select:focus {
+    border-color: var(--n8n-admin-primary);
+    box-shadow: 0 0 0 3px rgba(69, 211, 211, 0.1);
+    outline: none;
 } 

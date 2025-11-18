@@ -220,6 +220,32 @@ class N8NCHWI_Admin {
             'default' => '3',
         ));
 
+        // Business hours settings
+        register_setting('n8n_chat_widget_options', 'n8n_chat_widget_schedule_enabled', array(
+            'sanitize_callback' => array($this, 'sanitize_checkbox'),
+            'default' => 'no',
+        ));
+
+        register_setting('n8n_chat_widget_options', 'n8n_chat_widget_schedule_timezone', array(
+            'sanitize_callback' => array($this, 'sanitize_timezone'),
+            'default' => 'site',
+        ));
+
+        register_setting('n8n_chat_widget_options', 'n8n_chat_widget_schedule_days', array(
+            'sanitize_callback' => 'sanitize_text_field',
+            'default' => 'mon,tue,wed,thu,fri',
+        ));
+
+        register_setting('n8n_chat_widget_options', 'n8n_chat_widget_schedule_start', array(
+            'sanitize_callback' => array($this, 'sanitize_time'),
+            'default' => '09:00',
+        ));
+
+        register_setting('n8n_chat_widget_options', 'n8n_chat_widget_schedule_end', array(
+            'sanitize_callback' => array($this, 'sanitize_time'),
+            'default' => '17:00',
+        ));
+
         add_settings_section(
             'n8n_chat_widget_general',
             __('General Settings', 'n8n-chat-widget'),
@@ -329,6 +355,25 @@ class N8NCHWI_Admin {
     public function sanitize_welcome_delay($input) {
         $input = absint($input);
         return max(0, min(60, $input)); // Limit delay between 0 and 60 seconds
+    }
+
+    /**
+     * Sanitize timezone value.
+     */
+    public function sanitize_timezone($input) {
+        $valid_timezones = array('site', 'UTC');
+        return in_array($input, $valid_timezones) ? $input : 'site';
+    }
+
+    /**
+     * Sanitize time value.
+     */
+    public function sanitize_time($input) {
+        // Validate time format HH:MM
+        if (preg_match('/^([01]?[0-9]|2[0-3]):([0-5][0-9])$/', $input)) {
+            return $input;
+        }
+        return '09:00'; // Default
     }
 
     /**
@@ -1040,6 +1085,88 @@ class N8NCHWI_Admin {
 
         echo '</div>'; // End group content
         echo '</div>'; // End engagement group
+
+        // ========== GROUP 6: SCHEDULE ==========
+        $schedule_enabled = get_option('n8n_chat_widget_schedule_enabled', 'no');
+        $schedule_timezone = get_option('n8n_chat_widget_schedule_timezone', 'site');
+        $schedule_days = get_option('n8n_chat_widget_schedule_days', 'mon,tue,wed,thu,fri');
+        $schedule_start = get_option('n8n_chat_widget_schedule_start', '09:00');
+        $schedule_end = get_option('n8n_chat_widget_schedule_end', '17:00');
+        $days_array = array_map('trim', explode(',', strtolower($schedule_days)));
+
+        echo '<div class="n8n-settings-group n8n-settings-group-schedule">';
+        echo '<div class="n8n-settings-group-header" data-group="schedule">';
+        echo '<span class="dashicons dashicons-clock"></span>';
+        echo '<h4>' . esc_html__('Business Hours', 'n8n-chat-widget') . '</h4>';
+        echo '<span class="n8n-group-toggle dashicons dashicons-arrow-up-alt2"></span>';
+        echo '</div>';
+        echo '<div class="n8n-settings-group-content" id="group-schedule">';
+
+        // Schedule toggle
+        echo '<div class="n8n-setting-field">';
+        echo '<label for="n8n_chat_widget_schedule_enabled">' . esc_html__('Business Hours', 'n8n-chat-widget') . '</label>';
+        echo '<label class="n8n-toggle-wrapper">';
+        echo '<input type="checkbox" id="n8n_chat_widget_schedule_enabled" name="n8n_chat_widget_schedule_enabled" value="yes" ' . checked('yes', $schedule_enabled, false) . ' />';
+        echo '<span class="n8n-toggle-slider"></span>';
+        echo '<span class="n8n-toggle-label">' . esc_html__('Only show widget during business hours', 'n8n-chat-widget') . '</span>';
+        echo '</label>';
+        echo '</div>';
+
+        // Schedule settings wrapper (hidden when disabled)
+        echo '<div class="n8n-schedule-settings-wrapper" id="schedule-settings-wrapper" style="' . ($schedule_enabled !== 'yes' ? 'display: none;' : '') . '">';
+
+        // Timezone
+        echo '<div class="n8n-setting-field">';
+        echo '<label for="n8n_chat_widget_schedule_timezone">' . esc_html__('Timezone', 'n8n-chat-widget') . '</label>';
+        echo '<select id="n8n_chat_widget_schedule_timezone" name="n8n_chat_widget_schedule_timezone" class="n8n-select">';
+        echo '<option value="site" ' . selected('site', $schedule_timezone, false) . '>' . esc_html__('Site Timezone', 'n8n-chat-widget') . ' (' . esc_html(wp_timezone_string()) . ')</option>';
+        echo '<option value="UTC" ' . selected('UTC', $schedule_timezone, false) . '>' . esc_html__('UTC', 'n8n-chat-widget') . '</option>';
+        echo '</select>';
+        echo '</div>';
+
+        // Days of week
+        echo '<div class="n8n-setting-field">';
+        echo '<label>' . esc_html__('Days', 'n8n-chat-widget') . '</label>';
+        echo '<div class="n8n-days-selector">';
+
+        $all_days = array(
+            'mon' => __('Mon', 'n8n-chat-widget'),
+            'tue' => __('Tue', 'n8n-chat-widget'),
+            'wed' => __('Wed', 'n8n-chat-widget'),
+            'thu' => __('Thu', 'n8n-chat-widget'),
+            'fri' => __('Fri', 'n8n-chat-widget'),
+            'sat' => __('Sat', 'n8n-chat-widget'),
+            'sun' => __('Sun', 'n8n-chat-widget'),
+        );
+
+        foreach ($all_days as $day_key => $day_label) {
+            $checked = in_array($day_key, $days_array) ? ' checked' : '';
+            echo '<label class="n8n-day-option' . ($checked ? ' selected' : '') . '">';
+            echo '<input type="checkbox" name="n8n_schedule_day_' . esc_attr($day_key) . '" value="' . esc_attr($day_key) . '"' . $checked . ' />';
+            echo '<span class="n8n-day-label">' . esc_html($day_label) . '</span>';
+            echo '</label>';
+        }
+
+        echo '</div>';
+        // Hidden input to store combined days value
+        echo '<input type="hidden" id="n8n_chat_widget_schedule_days" name="n8n_chat_widget_schedule_days" value="' . esc_attr($schedule_days) . '" />';
+        echo '</div>';
+
+        // Time range
+        echo '<div class="n8n-setting-field">';
+        echo '<label>' . esc_html__('Hours', 'n8n-chat-widget') . '</label>';
+        echo '<div class="n8n-time-range">';
+        echo '<input type="time" id="n8n_chat_widget_schedule_start" name="n8n_chat_widget_schedule_start" value="' . esc_attr($schedule_start) . '" />';
+        echo '<span class="n8n-time-separator">' . esc_html__('to', 'n8n-chat-widget') . '</span>';
+        echo '<input type="time" id="n8n_chat_widget_schedule_end" name="n8n_chat_widget_schedule_end" value="' . esc_attr($schedule_end) . '" />';
+        echo '</div>';
+        echo '<p class="description">' . esc_html__('Widget will be hidden outside these hours', 'n8n-chat-widget') . '</p>';
+        echo '</div>';
+
+        echo '</div>'; // End schedule settings wrapper
+
+        echo '</div>'; // End group content
+        echo '</div>'; // End schedule group
     }
 
     /**

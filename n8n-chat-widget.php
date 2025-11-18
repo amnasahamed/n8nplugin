@@ -54,6 +54,13 @@ function n8nchwi_activate() {
     add_option('n8n_chat_widget_welcome_enabled', 'no');
     add_option('n8n_chat_widget_welcome_message', 'Hi there! How can I help you today?');
     add_option('n8n_chat_widget_welcome_delay', '3');
+
+    // Business hours options
+    add_option('n8n_chat_widget_schedule_enabled', 'no');
+    add_option('n8n_chat_widget_schedule_timezone', 'site'); // site or UTC
+    add_option('n8n_chat_widget_schedule_days', 'mon,tue,wed,thu,fri'); // comma-separated
+    add_option('n8n_chat_widget_schedule_start', '09:00');
+    add_option('n8n_chat_widget_schedule_end', '17:00');
 }
 
 /**
@@ -97,6 +104,11 @@ function n8nchwi_get_options() {
             'welcome_enabled' => get_option('n8n_chat_widget_welcome_enabled', 'no'),
             'welcome_message' => get_option('n8n_chat_widget_welcome_message', 'Hi there! How can I help you today?'),
             'welcome_delay' => get_option('n8n_chat_widget_welcome_delay', '3'),
+            'schedule_enabled' => get_option('n8n_chat_widget_schedule_enabled', 'no'),
+            'schedule_timezone' => get_option('n8n_chat_widget_schedule_timezone', 'site'),
+            'schedule_days' => get_option('n8n_chat_widget_schedule_days', 'mon,tue,wed,thu,fri'),
+            'schedule_start' => get_option('n8n_chat_widget_schedule_start', '09:00'),
+            'schedule_end' => get_option('n8n_chat_widget_schedule_end', '17:00'),
         );
     }
 
@@ -124,6 +136,13 @@ function n8nchwi_should_display() {
     // Check mobile hiding (basic check - JS will handle actual mobile detection)
     if ($options['hide_on_mobile'] === 'yes' && wp_is_mobile()) {
         return false;
+    }
+
+    // Check business hours schedule
+    if ($options['schedule_enabled'] === 'yes') {
+        if (!n8nchwi_is_within_schedule($options)) {
+            return false;
+        }
     }
 
     // Check page targeting
@@ -191,6 +210,45 @@ function n8nchwi_should_display() {
     }
 
     return true;
+}
+
+/**
+ * Check if current time is within business hours schedule
+ *
+ * @param array $options Widget options
+ * @return bool Whether current time is within schedule
+ */
+function n8nchwi_is_within_schedule($options) {
+    // Get timezone
+    if ($options['schedule_timezone'] === 'site') {
+        $timezone = wp_timezone();
+    } else {
+        $timezone = new DateTimeZone('UTC');
+    }
+
+    // Get current time in the configured timezone
+    $now = new DateTime('now', $timezone);
+    $current_day = strtolower($now->format('D')); // mon, tue, wed, etc.
+    $current_time = $now->format('H:i');
+
+    // Check if current day is in schedule
+    $schedule_days = array_map('trim', explode(',', strtolower($options['schedule_days'])));
+    if (!in_array($current_day, $schedule_days)) {
+        return false;
+    }
+
+    // Check if current time is within schedule
+    $start_time = $options['schedule_start'];
+    $end_time = $options['schedule_end'];
+
+    // Handle overnight schedules (e.g., 22:00 to 06:00)
+    if ($start_time > $end_time) {
+        // Overnight schedule
+        return ($current_time >= $start_time || $current_time < $end_time);
+    } else {
+        // Normal schedule
+        return ($current_time >= $start_time && $current_time < $end_time);
+    }
 }
 
 /**

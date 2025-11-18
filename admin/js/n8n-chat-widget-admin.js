@@ -228,6 +228,41 @@
             }
         });
 
+        // ========== SCHEDULE TOGGLE ==========
+        $('#n8n_chat_widget_schedule_enabled').on('change', function() {
+            const isEnabled = $(this).is(':checked');
+
+            if (isEnabled) {
+                $('#schedule-settings-wrapper').slideDown(200);
+            } else {
+                $('#schedule-settings-wrapper').slideUp(200);
+            }
+        });
+
+        // ========== DAYS SELECTOR ==========
+        $('.n8n-day-option input').on('change', function() {
+            const $option = $(this).closest('.n8n-day-option');
+
+            // Update selected state
+            if ($(this).is(':checked')) {
+                $option.addClass('selected');
+            } else {
+                $option.removeClass('selected');
+            }
+
+            // Update hidden input with selected days
+            updateScheduleDays();
+        });
+
+        // Function to update the hidden days input
+        function updateScheduleDays() {
+            const selectedDays = [];
+            $('.n8n-day-option input:checked').each(function() {
+                selectedDays.push($(this).val());
+            });
+            $('#n8n_chat_widget_schedule_days').val(selectedDays.join(','));
+        }
+
         // Function to update all color elements in the preview
         function updateColorInPreview(colorValue) {
             // Update header background
