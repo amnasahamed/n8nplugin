@@ -138,6 +138,109 @@ class N8NCHWI_Admin {
             'dashicons-format-chat',
             25  // Higher priority position
         );
+
+        // Add analytics submenu
+        add_submenu_page(
+            'n8n-chat-widget',
+            __('Analytics', 'n8n-chat-widget'),
+            __('Analytics', 'n8n-chat-widget'),
+            'manage_options',
+            'n8n-chat-widget-analytics',
+            array($this, 'render_analytics_page')
+        );
+    }
+
+    /**
+     * Render the analytics dashboard page
+     */
+    public function render_analytics_page() {
+        if (!current_user_can('manage_options')) {
+            return;
+        }
+
+        // Get analytics data
+        $days = isset($_GET['days']) ? intval($_GET['days']) : 30;
+        $days = max(7, min(90, $days)); // Limit between 7 and 90 days
+        $analytics = n8nchwi_get_analytics_data($days);
+
+        // Calculate engagement rate
+        $engagement_rate = $analytics['totals']['widget_load'] > 0
+            ? round(($analytics['totals']['chat_open'] / $analytics['totals']['widget_load']) * 100, 1)
+            : 0;
+
+        ?>
+        <div class="wrap">
+            <h1><?php echo esc_html__('Chat Widget Analytics', 'n8n-chat-widget'); ?></h1>
+
+            <div class="n8n-analytics-header" style="margin: 20px 0; display: flex; justify-content: space-between; align-items: center;">
+                <div class="n8n-date-filter">
+                    <label for="analytics-days"><?php esc_html_e('Time Period:', 'n8n-chat-widget'); ?></label>
+                    <select id="analytics-days" onchange="window.location.href='<?php echo esc_url(admin_url('admin.php?page=n8n-chat-widget-analytics&days=')); ?>' + this.value">
+                        <option value="7" <?php selected($days, 7); ?>><?php esc_html_e('Last 7 days', 'n8n-chat-widget'); ?></option>
+                        <option value="30" <?php selected($days, 30); ?>><?php esc_html_e('Last 30 days', 'n8n-chat-widget'); ?></option>
+                        <option value="90" <?php selected($days, 90); ?>><?php esc_html_e('Last 90 days', 'n8n-chat-widget'); ?></option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="n8n-analytics-cards" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 30px;">
+                <!-- Widget Loads -->
+                <div class="n8n-analytics-card" style="background: white; padding: 24px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
+                    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+                        <span class="dashicons dashicons-visibility" style="font-size: 24px; color: #6366f1;"></span>
+                        <h3 style="margin: 0; font-size: 14px; color: #666; font-weight: 500;"><?php esc_html_e('Widget Loads', 'n8n-chat-widget'); ?></h3>
+                    </div>
+                    <div style="font-size: 32px; font-weight: 700; color: #1a1a1a;"><?php echo esc_html(number_format($analytics['totals']['widget_load'])); ?></div>
+                    <p style="margin: 8px 0 0; font-size: 12px; color: #888;"><?php esc_html_e('Times the widget appeared', 'n8n-chat-widget'); ?></p>
+                </div>
+
+                <!-- Chat Opens -->
+                <div class="n8n-analytics-card" style="background: white; padding: 24px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
+                    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+                        <span class="dashicons dashicons-format-chat" style="font-size: 24px; color: #45d3d3;"></span>
+                        <h3 style="margin: 0; font-size: 14px; color: #666; font-weight: 500;"><?php esc_html_e('Chat Opens', 'n8n-chat-widget'); ?></h3>
+                    </div>
+                    <div style="font-size: 32px; font-weight: 700; color: #1a1a1a;"><?php echo esc_html(number_format($analytics['totals']['chat_open'])); ?></div>
+                    <p style="margin: 8px 0 0; font-size: 12px; color: #888;"><?php esc_html_e('Conversations started', 'n8n-chat-widget'); ?></p>
+                </div>
+
+                <!-- Engagement Rate -->
+                <div class="n8n-analytics-card" style="background: white; padding: 24px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
+                    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+                        <span class="dashicons dashicons-chart-bar" style="font-size: 24px; color: #f59e0b;"></span>
+                        <h3 style="margin: 0; font-size: 14px; color: #666; font-weight: 500;"><?php esc_html_e('Engagement Rate', 'n8n-chat-widget'); ?></h3>
+                    </div>
+                    <div style="font-size: 32px; font-weight: 700; color: #1a1a1a;"><?php echo esc_html($engagement_rate); ?>%</div>
+                    <p style="margin: 8px 0 0; font-size: 12px; color: #888;"><?php esc_html_e('Opens / Loads', 'n8n-chat-widget'); ?></p>
+                </div>
+
+                <!-- Welcome Message Clicks -->
+                <div class="n8n-analytics-card" style="background: white; padding: 24px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
+                    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+                        <span class="dashicons dashicons-megaphone" style="font-size: 24px; color: #10b981;"></span>
+                        <h3 style="margin: 0; font-size: 14px; color: #666; font-weight: 500;"><?php esc_html_e('Welcome Clicks', 'n8n-chat-widget'); ?></h3>
+                    </div>
+                    <div style="font-size: 32px; font-weight: 700; color: #1a1a1a;"><?php echo esc_html(number_format($analytics['totals']['welcome_click'])); ?></div>
+                    <p style="margin: 8px 0 0; font-size: 12px; color: #888;"><?php esc_html_e('From welcome message', 'n8n-chat-widget'); ?></p>
+                </div>
+            </div>
+
+            <?php if (empty($analytics['daily'])) : ?>
+            <div class="n8n-analytics-empty" style="background: white; padding: 40px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); text-align: center;">
+                <span class="dashicons dashicons-chart-area" style="font-size: 48px; color: #ddd; margin-bottom: 16px;"></span>
+                <h3 style="margin: 0 0 8px; color: #666;"><?php esc_html_e('No Data Yet', 'n8n-chat-widget'); ?></h3>
+                <p style="margin: 0; color: #888;"><?php esc_html_e('Analytics will appear here once visitors start interacting with your chat widget.', 'n8n-chat-widget'); ?></p>
+            </div>
+            <?php endif; ?>
+
+            <div class="n8n-analytics-info" style="margin-top: 20px; padding: 16px; background: rgba(69, 211, 211, 0.1); border-radius: 8px; border-left: 4px solid #45d3d3;">
+                <p style="margin: 0; font-size: 13px; color: #666;">
+                    <span class="dashicons dashicons-info" style="margin-right: 8px;"></span>
+                    <?php esc_html_e('Analytics tracking respects user privacy. No personal data is collected.', 'n8n-chat-widget'); ?>
+                </p>
+            </div>
+        </div>
+        <?php
     }
 
     /**

@@ -87,6 +87,34 @@
 
         // Initialize welcome message if enabled
         initWelcomeMessage();
+
+        // Track widget load
+        trackAnalyticsEvent('widget_load');
+    }
+
+    /**
+     * Track analytics event
+     */
+    function trackAnalyticsEvent(eventType) {
+        // Check if analytics is enabled
+        if (typeof n8nchwiData === 'undefined' || n8nchwiData.analyticsEnabled !== 'yes') {
+            return;
+        }
+
+        // Send AJAX request
+        $.ajax({
+            url: n8nchwiData.ajaxUrl,
+            type: 'POST',
+            data: {
+                action: 'n8nchwi_record_analytics',
+                nonce: n8nchwiData.analyticsNonce,
+                event_type: eventType
+            },
+            // Silent tracking - no need to handle response
+            error: function() {
+                // Silently fail
+            }
+        });
     }
 
     /**
@@ -194,6 +222,9 @@
 
         // Hide welcome message if visible
         hideWelcomeMessage(false);
+
+        // Track chat open
+        trackAnalyticsEvent('chat_open');
 
         // Update ARIA attributes
         $button.attr('aria-expanded', 'true');

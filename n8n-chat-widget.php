@@ -61,6 +61,37 @@ function n8nchwi_activate() {
     add_option('n8n_chat_widget_schedule_days', 'mon,tue,wed,thu,fri'); // comma-separated
     add_option('n8n_chat_widget_schedule_start', '09:00');
     add_option('n8n_chat_widget_schedule_end', '17:00');
+
+    // Analytics option
+    add_option('n8n_chat_widget_analytics_enabled', 'yes');
+
+    // Create analytics table
+    n8nchwi_create_analytics_table();
+}
+
+/**
+ * Create analytics database table
+ */
+function n8nchwi_create_analytics_table() {
+    global $wpdb;
+    $table_name = $wpdb->prefix . 'n8n_chat_analytics';
+
+    $charset_collate = $wpdb->get_charset_collate();
+
+    $sql = "CREATE TABLE IF NOT EXISTS $table_name (
+        id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+        event_type varchar(50) NOT NULL,
+        event_date date NOT NULL,
+        event_count int(11) NOT NULL DEFAULT 1,
+        created_at datetime DEFAULT CURRENT_TIMESTAMP,
+        PRIMARY KEY (id),
+        UNIQUE KEY event_date_type (event_date, event_type),
+        KEY event_type (event_type),
+        KEY event_date (event_date)
+    ) $charset_collate;";
+
+    require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
+    dbDelta($sql);
 }
 
 /**
@@ -109,6 +140,7 @@ function n8nchwi_get_options() {
             'schedule_days' => get_option('n8n_chat_widget_schedule_days', 'mon,tue,wed,thu,fri'),
             'schedule_start' => get_option('n8n_chat_widget_schedule_start', '09:00'),
             'schedule_end' => get_option('n8n_chat_widget_schedule_end', '17:00'),
+            'analytics_enabled' => get_option('n8n_chat_widget_analytics_enabled', 'yes'),
         );
     }
 
@@ -282,7 +314,10 @@ function n8nchwi_enqueue_scripts() {
             'zoom' => $zoom,
             'welcomeEnabled' => esc_attr($options['welcome_enabled']),
             'welcomeMessage' => esc_html($options['welcome_message']),
-            'welcomeDelay' => intval($options['welcome_delay'])
+            'welcomeDelay' => intval($options['welcome_delay']),
+            'analyticsEnabled' => esc_attr($options['analytics_enabled']),
+            'ajaxUrl' => admin_url('admin-ajax.php'),
+            'analyticsNonce' => wp_create_nonce('n8nchwi_analytics')
         ));
 
         // Set CSS custom properties for theme colors
@@ -297,6 +332,131 @@ function n8nchwi_enqueue_scripts() {
     }
 }
 add_action('wp_enqueue_scripts', 'n8nchwi_enqueue_scripts');
+
+/**
+ * AJAX handler to record analytics event
+ */
+function n8nchwi_record_analytics() {
+    // Verify nonce
+    if (!isset($_POST['nonce']) || !wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['nonce'])), 'n8nchwi_analytics')) {
+        wp_send_json_error(array('message' => 'Security check failed.'));
+    }
+
+    // Get event type
+    $event_type = isset($_POST['event_type']) ? sanitize_text_field(wp_unslash($_POST['event_type'])) : '';
+    $valid_events = array('widget_load', 'chat_open', 'chat_close', 'welcome_click', 'welcome_dismiss');
+
+    if (!in_array($event_type, $valid_events)) {
+        wp_send_json_error(array('message' => 'Invalid event type.'));
+    }
+
+    // Check if analytics is enabled
+    if (get_option('n8n_chat_widget_analytics_enabled', 'yes') !== 'yes') {
+        wp_send_json_success(array('message' => 'Analytics disabled.'));
+        return;
+    }
+
+    // Record event
+    global $wpdb;
+    $table_name = $wpdb->prefix . 'n8n_chat_analytics';
+    $today = gmdate('Y-m-d');
+
+    // Insert or update (increment count if exists)
+    $result = $wpdb->query(
+        $wpdb->prepare(
+            "INSERT INTO $table_name (event_type, event_date, event_count)
+            VALUES (%s, %s, 1)
+            ON DUPLICATE KEY UPDATE event_count = event_count + 1",
+            $event_type,
+            $today
+        )
+    );
+
+    if ($result !== false) {
+        wp_send_json_success(array('message' => 'Event recorded.'));
+    } else {
+        wp_send_json_error(array('message' => 'Failed to record event.'));
+    }
+}
+add_action('wp_ajax_n8nchwi_record_analytics', 'n8nchwi_record_analytics');
+add_action('wp_ajax_nopriv_n8nchwi_record_analytics', 'n8nchwi_record_analytics');
+
+/**
+ * Get analytics data for dashboard
+ *
+ * @param int $days Number of days to retrieve
+ * @return array Analytics data
+ */
+function n8nchwi_get_analytics_data($days = 30) {
+    global $wpdb;
+    $table_name = $wpdb->prefix . 'n8n_chat_analytics';
+
+    // Get date range
+    $end_date = gmdate('Y-m-d');
+    $start_date = gmdate('Y-m-d', strtotime("-{$days} days"));
+
+    // Get aggregated data
+    $results = $wpdb->get_results(
+        $wpdb->prepare(
+            "SELECT event_type, SUM(event_count) as total
+            FROM $table_name
+            WHERE event_date BETWEEN %s AND %s
+            GROUP BY event_type",
+            $start_date,
+            $end_date
+        ),
+        ARRAY_A
+    );
+
+    // Format results
+    $data = array(
+        'widget_load' => 0,
+        'chat_open' => 0,
+        'chat_close' => 0,
+        'welcome_click' => 0,
+        'welcome_dismiss' => 0,
+    );
+
+    foreach ($results as $row) {
+        $data[$row['event_type']] = intval($row['total']);
+    }
+
+    // Get daily data for chart
+    $daily_results = $wpdb->get_results(
+        $wpdb->prepare(
+            "SELECT event_date, event_type, event_count
+            FROM $table_name
+            WHERE event_date BETWEEN %s AND %s
+            ORDER BY event_date ASC",
+            $start_date,
+            $end_date
+        ),
+        ARRAY_A
+    );
+
+    // Format daily data
+    $daily_data = array();
+    foreach ($daily_results as $row) {
+        $date = $row['event_date'];
+        if (!isset($daily_data[$date])) {
+            $daily_data[$date] = array(
+                'widget_load' => 0,
+                'chat_open' => 0,
+            );
+        }
+        if (isset($daily_data[$date][$row['event_type']])) {
+            $daily_data[$date][$row['event_type']] = intval($row['event_count']);
+        }
+    }
+
+    return array(
+        'totals' => $data,
+        'daily' => $daily_data,
+        'days' => $days,
+        'start_date' => $start_date,
+        'end_date' => $end_date,
+    );
+}
 
 /**
  * Add the chat widget to the footer
