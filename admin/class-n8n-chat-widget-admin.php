@@ -990,10 +990,41 @@ class N8NCHWI_Admin {
         echo '</div>';
         echo '</div>';
 
-        // Color field
+        // Color field with theme presets
         echo '<div class="n8n-setting-field">';
         echo '<label for="n8n_chat_widget_color">' . esc_html__('Widget Color', 'n8n-chat-widget') . '</label>';
+
+        // Theme presets
+        echo '<div class="n8n-color-themes">';
+        $themes = array(
+            array('name' => 'Ocean', 'color' => '#45d3d3'),
+            array('name' => 'Forest', 'color' => '#10b981'),
+            array('name' => 'Royal', 'color' => '#6366f1'),
+            array('name' => 'Sunset', 'color' => '#f59e0b'),
+            array('name' => 'Berry', 'color' => '#ec4899'),
+            array('name' => 'Slate', 'color' => '#64748b'),
+        );
+
+        foreach ($themes as $theme) {
+            $is_active = strtolower($color) === strtolower($theme['color']) ? ' active' : '';
+            echo '<button type="button" class="n8n-color-theme' . $is_active . '" data-color="' . esc_attr($theme['color']) . '" title="' . esc_attr($theme['name']) . '">';
+            echo '<span class="n8n-color-swatch" style="background-color: ' . esc_attr($theme['color']) . ';"></span>';
+            echo '<span class="n8n-color-name">' . esc_html($theme['name']) . '</span>';
+            echo '</button>';
+        }
+        echo '</div>';
+
+        echo '<div class="n8n-color-custom">';
+        echo '<span class="n8n-color-custom-label">' . esc_html__('Custom:', 'n8n-chat-widget') . '</span>';
         echo '<input type="text" id="n8n_chat_widget_color" name="n8n_chat_widget_color" value="' . esc_attr($color) . '" class="n8n-color-picker" data-default-color="#45d3d3" />';
+        echo '</div>';
+
+        // Contrast check
+        echo '<div class="n8n-color-contrast" id="color-contrast-check">';
+        echo '<span class="dashicons dashicons-yes-alt"></span>';
+        echo '<span class="n8n-contrast-text">' . esc_html__('Good contrast for accessibility', 'n8n-chat-widget') . '</span>';
+        echo '</div>';
+
         echo '</div>';
 
         // Icon settings

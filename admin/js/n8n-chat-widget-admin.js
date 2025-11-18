@@ -263,6 +263,77 @@
             $('#n8n_chat_widget_schedule_days').val(selectedDays.join(','));
         }
 
+        // ========== COLOR THEME SELECTOR ==========
+        $('.n8n-color-theme').on('click', function() {
+            const color = $(this).data('color');
+
+            // Update active state
+            $('.n8n-color-theme').removeClass('active');
+            $(this).addClass('active');
+
+            // Update color picker
+            $('#n8n_chat_widget_color').val(color);
+
+            // Trigger WordPress color picker update
+            $('#n8n_chat_widget_color').wpColorPicker('color', color);
+
+            // Update preview
+            updateColorInPreview(color);
+
+            // Check contrast
+            checkColorContrast(color);
+        });
+
+        // Check contrast when color changes
+        $('#n8n_chat_widget_color').on('change', function() {
+            const color = $(this).val();
+            checkColorContrast(color);
+
+            // Update theme button states
+            $('.n8n-color-theme').each(function() {
+                const themeColor = $(this).data('color').toLowerCase();
+                $(this).toggleClass('active', themeColor === color.toLowerCase());
+            });
+        });
+
+        // Function to check color contrast
+        function checkColorContrast(hexColor) {
+            const $contrast = $('#color-contrast-check');
+            const luminance = getLuminance(hexColor);
+
+            // Check if color has good contrast with white text
+            // WCAG AA requires 4.5:1 for normal text
+            const contrastRatio = (1 + 0.05) / (luminance + 0.05);
+
+            if (contrastRatio >= 4.5) {
+                $contrast.removeClass('warning')
+                    .find('.n8n-contrast-text').text('Good contrast for accessibility');
+            } else {
+                $contrast.addClass('warning')
+                    .find('.n8n-contrast-text').text('Low contrast - may affect readability');
+            }
+        }
+
+        // Calculate relative luminance
+        function getLuminance(hexColor) {
+            const hex = hexColor.replace('#', '');
+            const r = parseInt(hex.substr(0, 2), 16) / 255;
+            const g = parseInt(hex.substr(2, 2), 16) / 255;
+            const b = parseInt(hex.substr(4, 2), 16) / 255;
+
+            const R = r <= 0.03928 ? r / 12.92 : Math.pow((r + 0.055) / 1.055, 2.4);
+            const G = g <= 0.03928 ? g / 12.92 : Math.pow((g + 0.055) / 1.055, 2.4);
+            const B = b <= 0.03928 ? b / 12.92 : Math.pow((b + 0.055) / 1.055, 2.4);
+
+            return 0.2126 * R + 0.7152 * G + 0.0722 * B;
+        }
+
+        // Initial contrast check
+        const initialColor = $('#n8n_chat_widget_color').val();
+        if (initialColor) {
+            checkColorContrast(initialColor);
+        }
+
         // Function to update all color elements in the preview
         function updateColorInPreview(colorValue) {
             // Update header background
