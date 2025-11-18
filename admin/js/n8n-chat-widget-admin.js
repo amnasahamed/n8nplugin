@@ -269,6 +269,129 @@
             $('#n8n_chat_widget_schedule_days').val(selectedDays.join(','));
         }
 
+        // ========== PROACTIVE TRIGGERS ==========
+        // Time-based trigger toggle
+        $('#n8n_chat_widget_trigger_time_enabled').on('change', function() {
+            const isEnabled = $(this).is(':checked');
+
+            if (isEnabled) {
+                $('#trigger-time-delay-wrapper').slideDown(200);
+            } else {
+                $('#trigger-time-delay-wrapper').slideUp(200);
+            }
+        });
+
+        // Scroll-based trigger toggle
+        $('#n8n_chat_widget_trigger_scroll_enabled').on('change', function() {
+            const isEnabled = $(this).is(':checked');
+
+            if (isEnabled) {
+                $('#trigger-scroll-percent-wrapper').slideDown(200);
+            } else {
+                $('#trigger-scroll-percent-wrapper').slideUp(200);
+            }
+        });
+
+        // ========== PRE-CHAT FORM TOGGLE ==========
+        $('#n8n_chat_widget_prechat_enabled').on('change', function() {
+            const isEnabled = $(this).is(':checked');
+
+            if (isEnabled) {
+                $('#prechat-settings-wrapper').slideDown(200);
+            } else {
+                $('#prechat-settings-wrapper').slideUp(200);
+            }
+        });
+
+        // ========== SOUND SETTINGS ==========
+        // Sound enabled toggle
+        $('#n8n_chat_widget_sound_enabled').on('change', function() {
+            const isEnabled = $(this).is(':checked');
+
+            if (isEnabled) {
+                $('#sound-settings-wrapper').slideDown(200);
+            } else {
+                $('#sound-settings-wrapper').slideUp(200);
+            }
+        });
+
+        // Sound type selection
+        $('.n8n-sound-type-option input').on('change', function() {
+            $('.n8n-sound-type-option').removeClass('selected');
+            $(this).closest('.n8n-sound-type-option').addClass('selected');
+        });
+
+        // Sound preview
+        $('.n8n-sound-preview').on('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            const soundType = $(this).data('sound');
+            const volume = $('#n8n_chat_widget_sound_volume').val() / 100;
+            playNotificationSound(soundType, volume);
+        });
+
+        // Volume slider
+        $('#n8n_chat_widget_sound_volume').on('input', function() {
+            $('.n8n-volume-value').text($(this).val() + '%');
+        });
+
+        // Function to play notification sound using Web Audio API
+        function playNotificationSound(type, volume) {
+            try {
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+
+                gainNode.gain.value = volume * 0.3;
+
+                // Different sound types
+                switch (type) {
+                    case 'gentle':
+                        oscillator.frequency.setValueAtTime(800, audioContext.currentTime);
+                        oscillator.frequency.exponentialRampToValueAtTime(600, audioContext.currentTime + 0.1);
+                        oscillator.type = 'sine';
+                        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
+                        oscillator.start(audioContext.currentTime);
+                        oscillator.stop(audioContext.currentTime + 0.3);
+                        break;
+                    case 'chime':
+                        oscillator.frequency.setValueAtTime(1200, audioContext.currentTime);
+                        oscillator.frequency.exponentialRampToValueAtTime(800, audioContext.currentTime + 0.15);
+                        oscillator.type = 'sine';
+                        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.4);
+                        oscillator.start(audioContext.currentTime);
+                        oscillator.stop(audioContext.currentTime + 0.4);
+                        break;
+                    case 'pop':
+                        oscillator.frequency.setValueAtTime(600, audioContext.currentTime);
+                        oscillator.frequency.exponentialRampToValueAtTime(200, audioContext.currentTime + 0.08);
+                        oscillator.type = 'sine';
+                        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.15);
+                        oscillator.start(audioContext.currentTime);
+                        oscillator.stop(audioContext.currentTime + 0.15);
+                        break;
+                    case 'bell':
+                        oscillator.frequency.setValueAtTime(1000, audioContext.currentTime);
+                        oscillator.type = 'triangle';
+                        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+                        oscillator.start(audioContext.currentTime);
+                        oscillator.stop(audioContext.currentTime + 0.5);
+                        break;
+                    default:
+                        oscillator.frequency.setValueAtTime(800, audioContext.currentTime);
+                        oscillator.type = 'sine';
+                        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
+                        oscillator.start(audioContext.currentTime);
+                        oscillator.stop(audioContext.currentTime + 0.3);
+                }
+            } catch (e) {
+                console.warn('Could not play sound:', e);
+            }
+        }
+
         // ========== COLOR THEME SELECTOR ==========
         $('.n8n-color-theme').on('click', function() {
             const color = $(this).data('color');

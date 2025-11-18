@@ -11,6 +11,13 @@
     let isWidgetOpen = false;
     let hasLoaded = false;
     let welcomeMessageTimeout = null;
+    let triggersFired = {
+        exitIntent: false,
+        time: false,
+        scroll: false
+    };
+    let prechatCompleted = false;
+    let $prechatForm = null;
 
     /**
      * Initialize the chat widget
@@ -88,8 +95,109 @@
         // Initialize welcome message if enabled
         initWelcomeMessage();
 
+        // Initialize proactive triggers
+        initProactiveTriggers();
+
         // Track widget load
         trackAnalyticsEvent('widget_load');
+    }
+
+    /**
+     * Initialize proactive triggers (exit intent, time-based, scroll-based)
+     */
+    function initProactiveTriggers() {
+        if (typeof n8nchwiData === 'undefined') {
+            return;
+        }
+
+        // Check if triggers have been fired in this session
+        const sessionKey = 'n8n_triggers_fired';
+        const firedTriggers = sessionStorage.getItem(sessionKey);
+        if (firedTriggers) {
+            triggersFired = JSON.parse(firedTriggers);
+        }
+
+        // Exit intent trigger
+        if (n8nchwiData.triggerExitIntent === 'yes' && !triggersFired.exitIntent) {
+            initExitIntentTrigger();
+        }
+
+        // Time-based trigger
+        if (n8nchwiData.triggerTimeEnabled === 'yes' && !triggersFired.time) {
+            initTimeTrigger();
+        }
+
+        // Scroll-based trigger
+        if (n8nchwiData.triggerScrollEnabled === 'yes' && !triggersFired.scroll) {
+            initScrollTrigger();
+        }
+    }
+
+    /**
+     * Initialize exit intent trigger
+     */
+    function initExitIntentTrigger() {
+        $(document).on('mouseleave', function(e) {
+            // Only trigger when mouse leaves from the top of the viewport
+            if (e.clientY <= 0 && !isWidgetOpen && !triggersFired.exitIntent) {
+                triggersFired.exitIntent = true;
+                saveTriggerState();
+                playNotificationSound();
+                openChatWidget();
+                trackAnalyticsEvent('trigger_exit_intent');
+            }
+        });
+    }
+
+    /**
+     * Initialize time-based trigger
+     */
+    function initTimeTrigger() {
+        const delay = (parseInt(n8nchwiData.triggerTimeDelay, 10) || 30) * 1000;
+
+        setTimeout(function() {
+            if (!isWidgetOpen && !triggersFired.time) {
+                triggersFired.time = true;
+                saveTriggerState();
+                playNotificationSound();
+                openChatWidget();
+                trackAnalyticsEvent('trigger_time');
+            }
+        }, delay);
+    }
+
+    /**
+     * Initialize scroll-based trigger
+     */
+    function initScrollTrigger() {
+        const triggerPercent = parseInt(n8nchwiData.triggerScrollPercent, 10) || 50;
+
+        $(window).on('scroll.n8nTrigger', function() {
+            if (triggersFired.scroll || isWidgetOpen) {
+                return;
+            }
+
+            const scrollTop = $(window).scrollTop();
+            const docHeight = $(document).height();
+            const winHeight = $(window).height();
+            const scrollPercent = (scrollTop / (docHeight - winHeight)) * 100;
+
+            if (scrollPercent >= triggerPercent) {
+                triggersFired.scroll = true;
+                saveTriggerState();
+                $(window).off('scroll.n8nTrigger');
+                playNotificationSound();
+                openChatWidget();
+                trackAnalyticsEvent('trigger_scroll');
+            }
+        });
+    }
+
+    /**
+     * Save trigger state to session storage
+     */
+    function saveTriggerState() {
+        sessionStorage.setItem('n8n_triggers_fired', JSON.stringify(triggersFired));
     }
 
     /**
@@ -230,6 +338,36 @@
         $button.attr('aria-expanded', 'true');
         $popup.attr('aria-hidden', 'false');
 
+        // Check if pre-chat form is needed
+        if (typeof n8nchwiData !== 'undefined' &&
+            n8nchwiData.prechatEnabled === 'yes' &&
+            !prechatCompleted) {
+            showPrechatForm();
+        } else {
+            showChatIframe();
+        }
+
+        // Animate opening
+        setTimeout(function() {
+            $popup.addClass('n8n-chat-widget-popup-open');
+            // Set focus to close button for accessibility
+            $closeBtn.focus();
+        }, 10);
+    }
+
+    /**
+     * Show the chat iframe
+     */
+    function showChatIframe() {
+        // Hide pre-chat form if visible
+        if ($prechatForm) {
+            $prechatForm.remove();
+            $prechatForm = null;
+        }
+
+        // Show frame container
+        $iframe.parent().show();
+
         // Only load the iframe content when opened for the first time
         if (!hasLoaded) {
             var chatUrl = $iframe.attr('data-src');
@@ -243,13 +381,192 @@
                 applyZoomToIframe(n8nchwiData.zoom);
             }
         }
+    }
 
-        // Animate opening
-        setTimeout(function() {
-            $popup.addClass('n8n-chat-widget-popup-open');
-            // Set focus to close button for accessibility
-            $closeBtn.focus();
-        }, 10);
+    /**
+     * Show the pre-chat form
+     */
+    function showPrechatForm() {
+        // Hide iframe container
+        $iframe.parent().hide();
+
+        // Build form HTML
+        var formHtml = '<div class="n8n-prechat-form">';
+        formHtml += '<h3 class="n8n-prechat-title">' + escapeHtml(n8nchwiData.prechatTitle) + '</h3>';
+        formHtml += '<div class="n8n-prechat-fields">';
+
+        // Name field
+        if (n8nchwiData.prechatName === 'yes') {
+            formHtml += '<div class="n8n-prechat-field">';
+            formHtml += '<label for="n8n-prechat-name">Name</label>';
+            formHtml += '<input type="text" id="n8n-prechat-name" name="name" placeholder="Your name" />';
+            formHtml += '</div>';
+        }
+
+        // Email field
+        if (n8nchwiData.prechatEmail === 'yes') {
+            formHtml += '<div class="n8n-prechat-field">';
+            formHtml += '<label for="n8n-prechat-email">Email</label>';
+            formHtml += '<input type="email" id="n8n-prechat-email" name="email" placeholder="your@email.com" />';
+            formHtml += '</div>';
+        }
+
+        // Phone field
+        if (n8nchwiData.prechatPhone === 'yes') {
+            formHtml += '<div class="n8n-prechat-field">';
+            formHtml += '<label for="n8n-prechat-phone">Phone</label>';
+            formHtml += '<input type="tel" id="n8n-prechat-phone" name="phone" placeholder="Your phone number" />';
+            formHtml += '</div>';
+        }
+
+        // Message field
+        if (n8nchwiData.prechatMessage === 'yes') {
+            formHtml += '<div class="n8n-prechat-field">';
+            formHtml += '<label for="n8n-prechat-message">Message</label>';
+            formHtml += '<textarea id="n8n-prechat-message" name="message" placeholder="How can we help you?"></textarea>';
+            formHtml += '</div>';
+        }
+
+        formHtml += '</div>';
+        formHtml += '<button type="button" class="n8n-prechat-submit">' + escapeHtml(n8nchwiData.prechatButton) + '</button>';
+        formHtml += '</div>';
+
+        // Create and append form
+        $prechatForm = $(formHtml);
+        $popup.find('.n8n-chat-widget-frame-container').after($prechatForm);
+
+        // Handle form submission
+        $prechatForm.find('.n8n-prechat-submit').on('click', function() {
+            submitPrechatForm();
+        });
+
+        // Handle enter key on inputs
+        $prechatForm.find('input').on('keypress', function(e) {
+            if (e.which === 13) {
+                submitPrechatForm();
+            }
+        });
+    }
+
+    /**
+     * Submit pre-chat form
+     */
+    function submitPrechatForm() {
+        var $submitBtn = $prechatForm.find('.n8n-prechat-submit');
+        $submitBtn.prop('disabled', true).text('Sending...');
+
+        // Gather form data
+        var formData = {
+            action: 'n8nchwi_save_lead',
+            nonce: n8nchwiData.prechatNonce,
+            name: $prechatForm.find('#n8n-prechat-name').val() || '',
+            email: $prechatForm.find('#n8n-prechat-email').val() || '',
+            phone: $prechatForm.find('#n8n-prechat-phone').val() || '',
+            message: $prechatForm.find('#n8n-prechat-message').val() || '',
+            page_url: window.location.href
+        };
+
+        // Validate email if provided
+        if (formData.email && !isValidEmail(formData.email)) {
+            $prechatForm.find('#n8n-prechat-email').addClass('error');
+            $submitBtn.prop('disabled', false).text(n8nchwiData.prechatButton);
+            return;
+        }
+
+        // Send AJAX request
+        $.ajax({
+            url: n8nchwiData.ajaxUrl,
+            type: 'POST',
+            data: formData,
+            success: function(response) {
+                if (response.success) {
+                    prechatCompleted = true;
+                    trackAnalyticsEvent('prechat_submit');
+                    showChatIframe();
+                } else {
+                    $submitBtn.prop('disabled', false).text(n8nchwiData.prechatButton);
+                }
+            },
+            error: function() {
+                // Still proceed to chat on error
+                prechatCompleted = true;
+                showChatIframe();
+            }
+        });
+    }
+
+    /**
+     * Validate email format
+     */
+    function isValidEmail(email) {
+        var re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return re.test(email);
+    }
+
+    /**
+     * Play notification sound using Web Audio API
+     */
+    function playNotificationSound() {
+        if (typeof n8nchwiData === 'undefined' || n8nchwiData.soundEnabled !== 'yes') {
+            return;
+        }
+
+        try {
+            var audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            var oscillator = audioContext.createOscillator();
+            var gainNode = audioContext.createGain();
+
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+
+            var volume = (n8nchwiData.soundVolume / 100) * 0.3;
+            gainNode.gain.value = volume;
+
+            var type = n8nchwiData.soundType || 'gentle';
+
+            // Different sound types
+            switch (type) {
+                case 'gentle':
+                    oscillator.frequency.setValueAtTime(800, audioContext.currentTime);
+                    oscillator.frequency.exponentialRampToValueAtTime(600, audioContext.currentTime + 0.1);
+                    oscillator.type = 'sine';
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
+                    oscillator.start(audioContext.currentTime);
+                    oscillator.stop(audioContext.currentTime + 0.3);
+                    break;
+                case 'chime':
+                    oscillator.frequency.setValueAtTime(1200, audioContext.currentTime);
+                    oscillator.frequency.exponentialRampToValueAtTime(800, audioContext.currentTime + 0.15);
+                    oscillator.type = 'sine';
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.4);
+                    oscillator.start(audioContext.currentTime);
+                    oscillator.stop(audioContext.currentTime + 0.4);
+                    break;
+                case 'pop':
+                    oscillator.frequency.setValueAtTime(600, audioContext.currentTime);
+                    oscillator.frequency.exponentialRampToValueAtTime(200, audioContext.currentTime + 0.08);
+                    oscillator.type = 'sine';
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.15);
+                    oscillator.start(audioContext.currentTime);
+                    oscillator.stop(audioContext.currentTime + 0.15);
+                    break;
+                case 'bell':
+                    oscillator.frequency.setValueAtTime(1000, audioContext.currentTime);
+                    oscillator.type = 'triangle';
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+                    oscillator.start(audioContext.currentTime);
+                    oscillator.stop(audioContext.currentTime + 0.5);
+                    break;
+                default:
+                    oscillator.frequency.setValueAtTime(800, audioContext.currentTime);
+                    oscillator.type = 'sine';
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
+                    oscillator.start(audioContext.currentTime);
+                    oscillator.stop(audioContext.currentTime + 0.3);
+            }
+        } catch (e) {
+            // Silently fail
+        }
     }
 
     /**

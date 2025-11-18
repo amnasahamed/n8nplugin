@@ -1,0 +1,92 @@
+/**
+ * n8n Chat Widget Block - Editor Styles
+ */
+
+.n8n-chat-widget-block {
+    padding: 0;
+}
+
+.n8n-chat-widget-block-preview {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 20px;
+    background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+    border: 2px solid #e1e5e9;
+    border-radius: 8px;
+}
+
+.n8n-block-icon {
+    width: 48px;
+    height: 48px;
+    background: linear-gradient(135deg, #45d3d3 0%, #37b2b2 100%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.n8n-block-icon .dashicons {
+    color: white;
+    font-size: 24px;
+    width: 24px;
+    height: 24px;
+}
+
+.n8n-block-info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.n8n-block-info strong {
+    font-size: 14px;
+    color: #1e293b;
+}
+
+.n8n-block-info span {
+    font-size: 12px;
+    color: #64748b;
+}
+
+.n8n-block-info .status-enabled {
+    color: #10b981;
+}
+
+.n8n-block-info .status-disabled {
+    color: #ef4444;
+}
+
+.n8n-block-info .custom-title {
+    font-style: italic;
+}
+
+.n8n-block-info .custom-color {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.n8n-block-info .color-swatch {
+    display: inline-block;
+    width: 14px;
+    height: 14px;
+    border-radius: 3px;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+/* Color picker in sidebar */
+.n8n-block-color-picker {
+    margin-top: 12px;
+}
+
+.n8n-block-color-picker .components-base-control__label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+}
+
+.n8n-block-color-picker .components-color-picker {
+    width: 100%;
+}

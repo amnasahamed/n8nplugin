@@ -349,6 +349,84 @@ class N8NCHWI_Admin {
             'default' => '17:00',
         ));
 
+        // Proactive trigger settings
+        register_setting('n8n_chat_widget_options', 'n8n_chat_widget_trigger_exit_intent', array(
+            'sanitize_callback' => array($this, 'sanitize_checkbox'),
+            'default' => 'no',
+        ));
+
+        register_setting('n8n_chat_widget_options', 'n8n_chat_widget_trigger_time_enabled', array(
+            'sanitize_callback' => array($this, 'sanitize_checkbox'),
+            'default' => 'no',
+        ));
+
+        register_setting('n8n_chat_widget_options', 'n8n_chat_widget_trigger_time_delay', array(
+            'sanitize_callback' => 'absint',
+            'default' => '30',
+        ));
+
+        register_setting('n8n_chat_widget_options', 'n8n_chat_widget_trigger_scroll_enabled', array(
+            'sanitize_callback' => array($this, 'sanitize_checkbox'),
+            'default' => 'no',
+        ));
+
+        register_setting('n8n_chat_widget_options', 'n8n_chat_widget_trigger_scroll_percent', array(
+            'sanitize_callback' => 'absint',
+            'default' => '50',
+        ));
+
+        // Pre-chat form settings
+        register_setting('n8n_chat_widget_options', 'n8n_chat_widget_prechat_enabled', array(
+            'sanitize_callback' => array($this, 'sanitize_checkbox'),
+            'default' => 'no',
+        ));
+
+        register_setting('n8n_chat_widget_options', 'n8n_chat_widget_prechat_name', array(
+            'sanitize_callback' => array($this, 'sanitize_checkbox'),
+            'default' => 'yes',
+        ));
+
+        register_setting('n8n_chat_widget_options', 'n8n_chat_widget_prechat_email', array(
+            'sanitize_callback' => array($this, 'sanitize_checkbox'),
+            'default' => 'yes',
+        ));
+
+        register_setting('n8n_chat_widget_options', 'n8n_chat_widget_prechat_phone', array(
+            'sanitize_callback' => array($this, 'sanitize_checkbox'),
+            'default' => 'no',
+        ));
+
+        register_setting('n8n_chat_widget_options', 'n8n_chat_widget_prechat_message', array(
+            'sanitize_callback' => array($this, 'sanitize_checkbox'),
+            'default' => 'no',
+        ));
+
+        register_setting('n8n_chat_widget_options', 'n8n_chat_widget_prechat_title', array(
+            'sanitize_callback' => 'sanitize_text_field',
+            'default' => 'Before we begin...',
+        ));
+
+        register_setting('n8n_chat_widget_options', 'n8n_chat_widget_prechat_button', array(
+            'sanitize_callback' => 'sanitize_text_field',
+            'default' => 'Start Chat',
+        ));
+
+        // Sound notification settings
+        register_setting('n8n_chat_widget_options', 'n8n_chat_widget_sound_enabled', array(
+            'sanitize_callback' => array($this, 'sanitize_checkbox'),
+            'default' => 'no',
+        ));
+
+        register_setting('n8n_chat_widget_options', 'n8n_chat_widget_sound_type', array(
+            'sanitize_callback' => 'sanitize_text_field',
+            'default' => 'gentle',
+        ));
+
+        register_setting('n8n_chat_widget_options', 'n8n_chat_widget_sound_volume', array(
+            'sanitize_callback' => 'absint',
+            'default' => '50',
+        ));
+
         add_settings_section(
             'n8n_chat_widget_general',
             __('General Settings', 'n8n-chat-widget'),
@@ -1347,6 +1425,222 @@ class N8NCHWI_Admin {
 
         echo '</div>'; // End group content
         echo '</div>'; // End schedule group
+
+        // ========== GROUP 7: PROACTIVE TRIGGERS ==========
+        $trigger_exit_intent = get_option('n8n_chat_widget_trigger_exit_intent', 'no');
+        $trigger_time_enabled = get_option('n8n_chat_widget_trigger_time_enabled', 'no');
+        $trigger_time_delay = get_option('n8n_chat_widget_trigger_time_delay', '30');
+        $trigger_scroll_enabled = get_option('n8n_chat_widget_trigger_scroll_enabled', 'no');
+        $trigger_scroll_percent = get_option('n8n_chat_widget_trigger_scroll_percent', '50');
+
+        echo '<div class="n8n-settings-group n8n-settings-group-triggers">';
+        echo '<div class="n8n-settings-group-header" data-group="triggers">';
+        echo '<span class="dashicons dashicons-megaphone"></span>';
+        echo '<h4>' . esc_html__('Proactive Triggers', 'n8n-chat-widget') . '</h4>';
+        echo '<span class="n8n-group-toggle dashicons dashicons-arrow-up-alt2"></span>';
+        echo '</div>';
+        echo '<div class="n8n-settings-group-content" id="group-triggers">';
+
+        // Exit intent trigger
+        echo '<div class="n8n-setting-field">';
+        echo '<label for="n8n_chat_widget_trigger_exit_intent">' . esc_html__('Exit Intent', 'n8n-chat-widget') . '</label>';
+        echo '<label class="n8n-toggle-wrapper">';
+        echo '<input type="checkbox" id="n8n_chat_widget_trigger_exit_intent" name="n8n_chat_widget_trigger_exit_intent" value="yes" ' . checked('yes', $trigger_exit_intent, false) . ' />';
+        echo '<span class="n8n-toggle-slider"></span>';
+        echo '<span class="n8n-toggle-label">' . esc_html__('Open chat when user tries to leave the page', 'n8n-chat-widget') . '</span>';
+        echo '</label>';
+        echo '</div>';
+
+        // Time-based trigger
+        echo '<div class="n8n-setting-field">';
+        echo '<label for="n8n_chat_widget_trigger_time_enabled">' . esc_html__('Time-based', 'n8n-chat-widget') . '</label>';
+        echo '<label class="n8n-toggle-wrapper">';
+        echo '<input type="checkbox" id="n8n_chat_widget_trigger_time_enabled" name="n8n_chat_widget_trigger_time_enabled" value="yes" ' . checked('yes', $trigger_time_enabled, false) . ' />';
+        echo '<span class="n8n-toggle-slider"></span>';
+        echo '<span class="n8n-toggle-label">' . esc_html__('Open chat after a set time on page', 'n8n-chat-widget') . '</span>';
+        echo '</label>';
+        echo '</div>';
+
+        // Time delay input
+        echo '<div class="n8n-setting-field n8n-trigger-delay-field" id="trigger-time-delay-wrapper" style="' . ($trigger_time_enabled !== 'yes' ? 'display: none;' : '') . '">';
+        echo '<label for="n8n_chat_widget_trigger_time_delay">' . esc_html__('Time Delay', 'n8n-chat-widget') . '</label>';
+        echo '<div class="n8n-delay-input-wrapper">';
+        echo '<input type="number" id="n8n_chat_widget_trigger_time_delay" name="n8n_chat_widget_trigger_time_delay" value="' . esc_attr($trigger_time_delay) . '" min="5" max="300" step="5" />';
+        echo '<span class="n8n-delay-unit">' . esc_html__('seconds', 'n8n-chat-widget') . '</span>';
+        echo '</div>';
+        echo '<p class="description">' . esc_html__('Time before the chat automatically opens (5-300 seconds)', 'n8n-chat-widget') . '</p>';
+        echo '</div>';
+
+        // Scroll-based trigger
+        echo '<div class="n8n-setting-field">';
+        echo '<label for="n8n_chat_widget_trigger_scroll_enabled">' . esc_html__('Scroll-based', 'n8n-chat-widget') . '</label>';
+        echo '<label class="n8n-toggle-wrapper">';
+        echo '<input type="checkbox" id="n8n_chat_widget_trigger_scroll_enabled" name="n8n_chat_widget_trigger_scroll_enabled" value="yes" ' . checked('yes', $trigger_scroll_enabled, false) . ' />';
+        echo '<span class="n8n-toggle-slider"></span>';
+        echo '<span class="n8n-toggle-label">' . esc_html__('Open chat when user scrolls down the page', 'n8n-chat-widget') . '</span>';
+        echo '</label>';
+        echo '</div>';
+
+        // Scroll percentage input
+        echo '<div class="n8n-setting-field n8n-trigger-scroll-field" id="trigger-scroll-percent-wrapper" style="' . ($trigger_scroll_enabled !== 'yes' ? 'display: none;' : '') . '">';
+        echo '<label for="n8n_chat_widget_trigger_scroll_percent">' . esc_html__('Scroll Percentage', 'n8n-chat-widget') . '</label>';
+        echo '<div class="n8n-delay-input-wrapper">';
+        echo '<input type="number" id="n8n_chat_widget_trigger_scroll_percent" name="n8n_chat_widget_trigger_scroll_percent" value="' . esc_attr($trigger_scroll_percent) . '" min="10" max="100" step="10" />';
+        echo '<span class="n8n-delay-unit">%</span>';
+        echo '</div>';
+        echo '<p class="description">' . esc_html__('Page scroll percentage to trigger chat (10-100%)', 'n8n-chat-widget') . '</p>';
+        echo '</div>';
+
+        echo '</div>'; // End group content
+        echo '</div>'; // End triggers group
+
+        // ========== GROUP 8: PRE-CHAT FORM ==========
+        $prechat_enabled = get_option('n8n_chat_widget_prechat_enabled', 'no');
+        $prechat_name = get_option('n8n_chat_widget_prechat_name', 'yes');
+        $prechat_email = get_option('n8n_chat_widget_prechat_email', 'yes');
+        $prechat_phone = get_option('n8n_chat_widget_prechat_phone', 'no');
+        $prechat_message = get_option('n8n_chat_widget_prechat_message', 'no');
+        $prechat_title = get_option('n8n_chat_widget_prechat_title', 'Before we begin...');
+        $prechat_button = get_option('n8n_chat_widget_prechat_button', 'Start Chat');
+
+        echo '<div class="n8n-settings-group n8n-settings-group-prechat">';
+        echo '<div class="n8n-settings-group-header" data-group="prechat">';
+        echo '<span class="dashicons dashicons-id-alt"></span>';
+        echo '<h4>' . esc_html__('Pre-chat Form', 'n8n-chat-widget') . '</h4>';
+        echo '<span class="n8n-group-toggle dashicons dashicons-arrow-up-alt2"></span>';
+        echo '</div>';
+        echo '<div class="n8n-settings-group-content" id="group-prechat">';
+
+        // Pre-chat form toggle
+        echo '<div class="n8n-setting-field">';
+        echo '<label for="n8n_chat_widget_prechat_enabled">' . esc_html__('Enable Pre-chat Form', 'n8n-chat-widget') . '</label>';
+        echo '<label class="n8n-toggle-wrapper">';
+        echo '<input type="checkbox" id="n8n_chat_widget_prechat_enabled" name="n8n_chat_widget_prechat_enabled" value="yes" ' . checked('yes', $prechat_enabled, false) . ' />';
+        echo '<span class="n8n-toggle-slider"></span>';
+        echo '<span class="n8n-toggle-label">' . esc_html__('Collect user information before starting chat', 'n8n-chat-widget') . '</span>';
+        echo '</label>';
+        echo '</div>';
+
+        // Pre-chat settings wrapper
+        echo '<div class="n8n-prechat-settings-wrapper" id="prechat-settings-wrapper" style="' . ($prechat_enabled !== 'yes' ? 'display: none;' : '') . '">';
+
+        // Form title
+        echo '<div class="n8n-setting-field">';
+        echo '<label for="n8n_chat_widget_prechat_title">' . esc_html__('Form Title', 'n8n-chat-widget') . '</label>';
+        echo '<input type="text" id="n8n_chat_widget_prechat_title" name="n8n_chat_widget_prechat_title" value="' . esc_attr($prechat_title) . '" class="regular-text" />';
+        echo '</div>';
+
+        // Form fields selection
+        echo '<div class="n8n-setting-field">';
+        echo '<label>' . esc_html__('Form Fields', 'n8n-chat-widget') . '</label>';
+        echo '<div class="n8n-prechat-fields">';
+
+        // Name field
+        echo '<label class="n8n-toggle-wrapper n8n-field-toggle">';
+        echo '<input type="checkbox" id="n8n_chat_widget_prechat_name" name="n8n_chat_widget_prechat_name" value="yes" ' . checked('yes', $prechat_name, false) . ' />';
+        echo '<span class="n8n-toggle-slider"></span>';
+        echo '<span class="n8n-toggle-label">' . esc_html__('Name', 'n8n-chat-widget') . '</span>';
+        echo '</label>';
+
+        // Email field
+        echo '<label class="n8n-toggle-wrapper n8n-field-toggle">';
+        echo '<input type="checkbox" id="n8n_chat_widget_prechat_email" name="n8n_chat_widget_prechat_email" value="yes" ' . checked('yes', $prechat_email, false) . ' />';
+        echo '<span class="n8n-toggle-slider"></span>';
+        echo '<span class="n8n-toggle-label">' . esc_html__('Email', 'n8n-chat-widget') . '</span>';
+        echo '</label>';
+
+        // Phone field
+        echo '<label class="n8n-toggle-wrapper n8n-field-toggle">';
+        echo '<input type="checkbox" id="n8n_chat_widget_prechat_phone" name="n8n_chat_widget_prechat_phone" value="yes" ' . checked('yes', $prechat_phone, false) . ' />';
+        echo '<span class="n8n-toggle-slider"></span>';
+        echo '<span class="n8n-toggle-label">' . esc_html__('Phone', 'n8n-chat-widget') . '</span>';
+        echo '</label>';
+
+        // Message field
+        echo '<label class="n8n-toggle-wrapper n8n-field-toggle">';
+        echo '<input type="checkbox" id="n8n_chat_widget_prechat_message" name="n8n_chat_widget_prechat_message" value="yes" ' . checked('yes', $prechat_message, false) . ' />';
+        echo '<span class="n8n-toggle-slider"></span>';
+        echo '<span class="n8n-toggle-label">' . esc_html__('Message', 'n8n-chat-widget') . '</span>';
+        echo '</label>';
+
+        echo '</div>';
+        echo '<p class="description">' . esc_html__('Select which fields to include in the pre-chat form', 'n8n-chat-widget') . '</p>';
+        echo '</div>';
+
+        // Button text
+        echo '<div class="n8n-setting-field">';
+        echo '<label for="n8n_chat_widget_prechat_button">' . esc_html__('Button Text', 'n8n-chat-widget') . '</label>';
+        echo '<input type="text" id="n8n_chat_widget_prechat_button" name="n8n_chat_widget_prechat_button" value="' . esc_attr($prechat_button) . '" class="regular-text" />';
+        echo '</div>';
+
+        echo '</div>'; // End prechat settings wrapper
+
+        echo '</div>'; // End group content
+        echo '</div>'; // End prechat group
+
+        // ========== GROUP 9: SOUND NOTIFICATIONS ==========
+        $sound_enabled = get_option('n8n_chat_widget_sound_enabled', 'no');
+        $sound_type = get_option('n8n_chat_widget_sound_type', 'gentle');
+        $sound_volume = get_option('n8n_chat_widget_sound_volume', '50');
+
+        echo '<div class="n8n-settings-group n8n-settings-group-sound">';
+        echo '<div class="n8n-settings-group-header" data-group="sound">';
+        echo '<span class="dashicons dashicons-format-audio"></span>';
+        echo '<h4>' . esc_html__('Sound Notifications', 'n8n-chat-widget') . '</h4>';
+        echo '<span class="n8n-group-toggle dashicons dashicons-arrow-up-alt2"></span>';
+        echo '</div>';
+        echo '<div class="n8n-settings-group-content" id="group-sound">';
+
+        // Sound enabled toggle
+        echo '<div class="n8n-setting-field">';
+        echo '<label for="n8n_chat_widget_sound_enabled">' . esc_html__('Enable Sound', 'n8n-chat-widget') . '</label>';
+        echo '<label class="n8n-toggle-wrapper">';
+        echo '<input type="checkbox" id="n8n_chat_widget_sound_enabled" name="n8n_chat_widget_sound_enabled" value="yes" ' . checked('yes', $sound_enabled, false) . ' />';
+        echo '<span class="n8n-toggle-slider"></span>';
+        echo '<span class="n8n-toggle-label">' . esc_html__('Play sound on proactive triggers', 'n8n-chat-widget') . '</span>';
+        echo '</label>';
+        echo '</div>';
+
+        // Sound settings wrapper
+        echo '<div class="n8n-sound-settings-wrapper" id="sound-settings-wrapper" style="' . ($sound_enabled !== 'yes' ? 'display: none;' : '') . '">';
+
+        // Sound type
+        echo '<div class="n8n-setting-field">';
+        echo '<label for="n8n_chat_widget_sound_type">' . esc_html__('Sound Type', 'n8n-chat-widget') . '</label>';
+        echo '<div class="n8n-sound-types">';
+
+        $sound_types = array(
+            'gentle' => __('Gentle Ping', 'n8n-chat-widget'),
+            'chime' => __('Chime', 'n8n-chat-widget'),
+            'pop' => __('Pop', 'n8n-chat-widget'),
+            'bell' => __('Bell', 'n8n-chat-widget'),
+        );
+
+        foreach ($sound_types as $type_key => $type_label) {
+            $checked = ($sound_type === $type_key) ? ' checked' : '';
+            echo '<label class="n8n-sound-type-option' . ($checked ? ' selected' : '') . '">';
+            echo '<input type="radio" name="n8n_chat_widget_sound_type" value="' . esc_attr($type_key) . '"' . $checked . ' />';
+            echo '<span class="n8n-sound-type-label">' . esc_html($type_label) . '</span>';
+            echo '<button type="button" class="n8n-sound-preview" data-sound="' . esc_attr($type_key) . '">&#9654;</button>';
+            echo '</label>';
+        }
+
+        echo '</div>';
+        echo '</div>';
+
+        // Volume slider
+        echo '<div class="n8n-setting-field">';
+        echo '<label for="n8n_chat_widget_sound_volume">' . esc_html__('Volume', 'n8n-chat-widget') . '</label>';
+        echo '<div class="n8n-volume-control">';
+        echo '<input type="range" id="n8n_chat_widget_sound_volume" name="n8n_chat_widget_sound_volume" min="0" max="100" value="' . esc_attr($sound_volume) . '" />';
+        echo '<span class="n8n-volume-value">' . esc_attr($sound_volume) . '%</span>';
+        echo '</div>';
+        echo '</div>';
+
+        echo '</div>'; // End sound settings wrapper
+
+        echo '</div>'; // End group content
+        echo '</div>'; // End sound group
     }
 
     /**

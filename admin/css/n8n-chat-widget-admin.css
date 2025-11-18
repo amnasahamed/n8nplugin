@@ -1287,6 +1287,123 @@
     outline: none;
 }
 
+/* ========== PRE-CHAT FORM FIELDS ========== */
+.n8n-prechat-fields {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.n8n-field-toggle {
+    padding: 12px 16px;
+    background: #f8f9fa;
+    border-radius: var(--n8n-admin-radius);
+    border: 1px solid var(--n8n-admin-border);
+}
+
+.n8n-field-toggle:hover {
+    background: #f0f1f2;
+}
+
+/* ========== SOUND SETTINGS ========== */
+.n8n-sound-types {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.n8n-sound-type-option {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    background: #f8f9fa;
+    border: 2px solid var(--n8n-admin-border);
+    border-radius: var(--n8n-admin-radius);
+    cursor: pointer;
+    transition: all var(--n8n-admin-transition);
+}
+
+.n8n-sound-type-option:hover {
+    background: #f0f1f2;
+}
+
+.n8n-sound-type-option.selected {
+    border-color: var(--n8n-admin-primary);
+    background: rgba(69, 211, 211, 0.05);
+}
+
+.n8n-sound-type-option input {
+    display: none;
+}
+
+.n8n-sound-type-label {
+    flex: 1;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.n8n-sound-preview {
+    width: 32px;
+    height: 32px;
+    border: none;
+    background: var(--n8n-admin-primary);
+    color: white;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    transition: all var(--n8n-admin-transition);
+}
+
+.n8n-sound-preview:hover {
+    background: var(--n8n-admin-primary-dark);
+    transform: scale(1.1);
+}
+
+.n8n-volume-control {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.n8n-volume-control input[type="range"] {
+    flex: 1;
+    height: 6px;
+    border-radius: 3px;
+    background: #e1e5e9;
+    outline: none;
+    -webkit-appearance: none;
+}
+
+.n8n-volume-control input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: var(--n8n-admin-primary);
+    cursor: pointer;
+    box-shadow: 0 2px 6px rgba(69, 211, 211, 0.3);
+}
+
+.n8n-volume-control input[type="range"]::-moz-range-thumb {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: var(--n8n-admin-primary);
+    cursor: pointer;
+    border: none;
+}
+
+.n8n-volume-value {
+    min-width: 45px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #666;
+}
+
 /* ========== COLOR THEMES ========== */
 .n8n-color-themes {
     display: flex;
