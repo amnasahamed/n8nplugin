@@ -1,337 +1,384 @@
 /**
- * N8N Chat Widget Admin JavaScript
+ * n8n Chat Widget Admin JavaScript - World Class Functionality
  */
 (function($) {
     'use strict';
 
     $(document).ready(function() {
-        // Initialize color pickers
+        // Tab Navigation
+        initTabs();
+
+        // Color Picker
+        initColorPicker();
+
+        // Theme Presets
+        initThemePresets();
+
+        // Icon Selection
+        initIconSelection();
+
+        // Style Options
+        initStyleOptions();
+
+        // Range Sliders
+        initRangeSliders();
+
+        // Display Mode
+        initDisplayMode();
+
+        // Media Uploads
+        initMediaUploads();
+
+        // Import/Export
+        initImportExport();
+
+        // Reset Settings
+        initResetSettings();
+
+        // Live Preview Updates
+        initLivePreview();
+
+        // Form Validation
+        initFormValidation();
+    });
+
+    /**
+     * Tab Navigation
+     */
+    function initTabs() {
+        $('.n8n-tab').on('click', function() {
+            const tabId = $(this).data('tab');
+
+            $('.n8n-tab').removeClass('active');
+            $(this).addClass('active');
+
+            $('.n8n-tab-content').removeClass('active');
+            $('#tab-' + tabId).addClass('active');
+        });
+    }
+
+    /**
+     * Color Picker
+     */
+    function initColorPicker() {
         $('.n8n-color-picker').wpColorPicker({
             change: function(event, ui) {
-                // Get the color value
-                const colorValue = ui.color.toString();
-                
-                // Update all color-dependent elements in the preview
-                updateColorInPreview(colorValue);
-            },
-            palettes: true
+                updatePreviewColor(ui.color.toString());
+            }
+        });
+    }
+
+    /**
+     * Theme Presets
+     */
+    function initThemePresets() {
+        const presetColors = {
+            purple: '#854fff',
+            blue: '#2563eb',
+            teal: '#14b8a6',
+            rose: '#f43f5e',
+            orange: '#f97316',
+            emerald: '#10b981',
+            indigo: '#6366f1',
+            slate: '#475569'
+        };
+
+        $('input[name="n8n_chat_widget_theme_preset"]').on('change', function() {
+            const preset = $(this).val();
+
+            $('.n8n-theme-preset').removeClass('selected');
+            $(this).closest('.n8n-theme-preset').addClass('selected');
+
+            if (preset === 'custom') {
+                $('.n8n-custom-color-field').slideDown();
+            } else {
+                $('.n8n-custom-color-field').slideUp();
+                if (presetColors[preset]) {
+                    updatePreviewColor(presetColors[preset]);
+                }
+            }
+        });
+    }
+
+    /**
+     * Icon Selection
+     */
+    function initIconSelection() {
+        // Icon type toggle
+        $('input[name="n8n_chat_widget_icon_type"]').on('change', function() {
+            const type = $(this).val();
+            if (type === 'emoji') {
+                $('#emoji-icon-section').slideDown();
+                $('#svg-icon-section').slideUp();
+                updatePreviewIcon($('#n8n_chat_widget_icon').val());
+            } else {
+                $('#emoji-icon-section').slideUp();
+                $('#svg-icon-section').slideDown();
+            }
         });
 
-        // Function to update all color elements in the preview
-        function updateColorInPreview(colorValue) {
-            // Update header background
-            $('#preview-widget-header').css('background-color', colorValue);
-            
-            // Update loading spinner
-            $('.preview-loading-spinner div').css('border-top-color', colorValue);
-            
-            // Update button color
-            $('#preview-chat-button').css('background-color', colorValue);
-            
-            // Update SVG preview background if it exists
-            $('.svg-preview div').css('background-color', colorValue);
-        }
-
-        // Handle color input direct changes (for browsers that support color inputs)
-        $('#n8n_chat_widget_color').on('input', function() {
-            updateColorInPreview($(this).val());
-        });
-
-        // Handle icon selection
-        $('.icon-option').on('click', function() {
+        // Emoji selection
+        $('.n8n-emoji-option').on('click', function() {
             const emoji = $(this).text();
             $('#n8n_chat_widget_icon').val(emoji);
-            $('#preview-button-icon').text(emoji);
+            $('.n8n-emoji-option').removeClass('selected');
+            $(this).addClass('selected');
+            updatePreviewIcon(emoji);
         });
-        
-        // Handle icon type toggle
-        $('input[name="n8n_chat_widget_icon_type"]').on('change', function() {
-            const iconType = $(this).val();
-            if (iconType === 'emoji') {
-                $('#emoji-icon-section').show();
-                $('#svg-icon-section').hide();
-                
-                // Update the preview button icon to show emoji
-                const emoji = $('#n8n_chat_widget_icon').val() || '💬';
-                $('#preview-button-icon').html(emoji);
-            } else {
-                $('#emoji-icon-section').hide();
-                $('#svg-icon-section').show();
-                
-                // If SVG is already selected, try to show it in the preview
-                const svgUrl = $('#n8n_chat_widget_svg_icon').val();
-                if (svgUrl) {
-                    $('#preview-button-icon').html(`<img src="${svgUrl}" alt="Icon" style="max-width: 60%; max-height: 60%; filter: brightness(0) invert(1);">`);
+
+        // Manual emoji input
+        $('#n8n_chat_widget_icon').on('input', function() {
+            const emoji = $(this).val();
+            updatePreviewIcon(emoji);
+            $('.n8n-emoji-option').removeClass('selected');
+            $('.n8n-emoji-option').each(function() {
+                if ($(this).text() === emoji) {
+                    $(this).addClass('selected');
                 }
+            });
+        });
+    }
+
+    /**
+     * Style Options
+     */
+    function initStyleOptions() {
+        $('input[name="n8n_chat_widget_button_style"]').on('change', function() {
+            $('.n8n-style-option').removeClass('selected');
+            $(this).closest('.n8n-style-option').addClass('selected');
+        });
+    }
+
+    /**
+     * Range Sliders
+     */
+    function initRangeSliders() {
+        $('#n8n_chat_widget_zoom_slider').on('input', function() {
+            const value = $(this).val();
+            $('#n8n_chat_widget_zoom').val(value);
+            updatePreviewZoom(value);
+        });
+
+        $('#n8n_chat_widget_zoom').on('change', function() {
+            let value = Math.max(50, Math.min(150, $(this).val()));
+            $(this).val(value);
+            $('#n8n_chat_widget_zoom_slider').val(value);
+            updatePreviewZoom(value);
+        });
+    }
+
+    /**
+     * Display Mode Toggle
+     */
+    function initDisplayMode() {
+        $('#n8n_display_mode').on('change', function() {
+            const mode = $(this).val();
+            $('.n8n-include-pages, .n8n-exclude-pages').hide();
+
+            if (mode === 'include') {
+                $('.n8n-include-pages').slideDown();
+            } else if (mode === 'exclude') {
+                $('.n8n-exclude-pages').slideDown();
             }
         });
-        
-        // Handle SVG upload
+    }
+
+    /**
+     * Media Uploads
+     */
+    function initMediaUploads() {
+        // SVG Icon Upload
         $('#upload_svg_button').on('click', function(e) {
             e.preventDefault();
-
-            // Create a media frame
-            const frame = wp.media({
-                title: 'Select or Upload SVG Icon',
-                button: {
-                    text: 'Use this icon'
-                },
-                multiple: false,
-                library: {
-                    type: 'image/svg+xml'
-                }
-            });
-
-            // When an image is selected in the media frame...
-            frame.on('select', function() {
-                // Get media attachment details from the frame state
-                const attachment = frame.state().get('selection').first().toJSON();
-
-                // Validate attachment exists
-                if (!attachment || !attachment.url) {
-                    alert('Error: Invalid attachment selected.');
-                    return;
-                }
-
-                // Only allow SVG files
-                if (attachment.subtype !== 'svg+xml' && attachment.type !== 'image/svg+xml') {
-                    alert('Please select an SVG file. Other image formats are not supported.');
-                    return;
-                }
-
-                // Additional file size check (limit to 1MB for SVG)
-                if (attachment.filesizeInBytes && attachment.filesizeInBytes > 1048576) {
-                    alert('SVG file is too large. Please select a file smaller than 1MB.');
-                    return;
-                }
-
-                // Set the value of the input field
-                $('#n8n_chat_widget_svg_icon').val(attachment.url);
-                
-                // Update button preview too if svg is selected
-                if ($('input[name="n8n_chat_widget_icon_type"]:checked').val() === 'svg') {
-                    const img = $('<img>', {
-                        src: attachment.url,
-                        alt: 'Icon',
-                        css: {
-                            'max-width': '60%',
-                            'max-height': '60%',
-                            'filter': 'brightness(0) invert(1)'
-                        }
-                    });
-                    $('#preview-button-icon').empty().append(img);
-                }
-                
-                // Update or create the preview
-                if ($('.svg-preview').length) {
-                    // The preview exists, update it
-                    // Check if we need to reload the page to refresh the attachment ID
-                    const $preview = $('.svg-preview');
-                    $preview.empty();
-
-                    $preview.append($('<p>', {class: 'description', text: 'Current icon:'}));
-
-                    const $iconContainer = $('<div>', {
-                        css: {
-                            'width': '60px',
-                            'height': '60px',
-                            'border': '1px solid #ddd',
-                            'border-radius': '50%',
-                            'overflow': 'hidden',
-                            'display': 'flex',
-                            'align-items': 'center',
-                            'justify-content': 'center',
-                            'background-color': $('#n8n_chat_widget_color').val()
-                        }
-                    });
-
-                    const $iconImg = $('<img>', {
-                        src: attachment.url,
-                        alt: 'SVG Icon',
-                        css: {'max-width': '60%', 'max-height': '60%'}
-                    });
-
-                    $iconContainer.append($iconImg);
-                    $preview.append($iconContainer);
-                    $preview.append($('<p>', {class: 'description', css: {'color': '#d63638'}, text: 'Save settings to properly display the icon.'}));
-                } else {
-                    // Create a new preview
-                    const $newPreview = $('<div>', {class: 'svg-preview', css: {'margin': '10px 0'}});
-
-                    $newPreview.append($('<p>', {class: 'description', text: 'Current icon:'}));
-
-                    const $iconContainer = $('<div>', {
-                        css: {
-                            'width': '60px',
-                            'height': '60px',
-                            'border': '1px solid #ddd',
-                            'border-radius': '50%',
-                            'overflow': 'hidden',
-                            'display': 'flex',
-                            'align-items': 'center',
-                            'justify-content': 'center',
-                            'background-color': $('#n8n_chat_widget_color').val()
-                        }
-                    });
-
-                    const $iconImg = $('<img>', {
-                        src: attachment.url,
-                        alt: 'SVG Icon',
-                        css: {'max-width': '60%', 'max-height': '60%'}
-                    });
-
-                    $iconContainer.append($iconImg);
-                    $newPreview.append($iconContainer);
-                    $newPreview.append($('<p>', {class: 'description', css: {'color': '#d63638'}, text: 'Save settings to properly display the icon.'}));
-
-                    $('.svg-upload-container').after($newPreview);
-                }
-            });
-            
-            // Open the media library frame
-            frame.open();
+            openMediaFrame('svg', '#n8n_chat_widget_svg_icon', 'image/svg+xml');
         });
-        
-        // Handle zoom slider
-        function updateZoomPreview(zoomValue) {
-            const scale = zoomValue / 100;
-            
-            // Update iframe preview if it exists
-            const $previewIframe = $('#zoom-preview-iframe');
-            if ($previewIframe.length) {
-                // For scaling, handle differently based on zoom level
-                if (scale < 1) {
-                    // When zooming out, adjust width/height to ensure content fits
-                    $previewIframe.css({
-                        'transform': 'scale(' + scale + ')',
-                        'transform-origin': 'top left',
-                        'width': (100 / scale) + '%',
-                        'height': (100 / scale) + '%'
-                    });
-                } else {
-                    // When zooming in or at 100%, keep width/height at 100%
-                    $previewIframe.css({
-                        'transform': 'scale(' + scale + ')',
-                        'transform-origin': 'top left',
-                        'width': '100%',
-                        'height': '100%'
-                    });
-                }
+
+        // Logo Upload
+        $('#upload_logo_button').on('click', function(e) {
+            e.preventDefault();
+            openMediaFrame('logo', '#n8n_chat_widget_header_logo', 'image');
+        });
+    }
+
+    function openMediaFrame(type, targetInput, fileType) {
+        const frame = wp.media({
+            title: type === 'svg' ? 'Select SVG Icon' : 'Select Logo',
+            button: { text: 'Use this image' },
+            multiple: false,
+            library: { type: fileType }
+        });
+
+        frame.on('select', function() {
+            const attachment = frame.state().get('selection').first().toJSON();
+
+            if (type === 'svg' && attachment.subtype !== 'svg+xml') {
+                alert('Please select an SVG file.');
+                return;
             }
-        }
-        
-        // Initialize zoom preview
-        updateZoomPreview($('#n8n_chat_widget_zoom').val());
-        
-        // Handle zoom slider changes
-        $('#n8n_chat_widget_zoom_slider').on('input', function() {
-            const zoomValue = $(this).val();
-            $('#n8n_chat_widget_zoom').val(zoomValue);
-            updateZoomPreview(zoomValue);
+
+            $(targetInput).val(attachment.url);
+
+            if (type === 'svg' && $('input[name="n8n_chat_widget_icon_type"]:checked').val() === 'svg') {
+                $('#preview-icon').html('<img src="' + attachment.url + '" style="width: 24px; height: 24px; filter: brightness(0) invert(1);">');
+            }
         });
-        
-        // Handle zoom input changes
-        $('#n8n_chat_widget_zoom').on('input', function() {
-            let zoomValue = $(this).val();
-            
-            // Enforce min/max boundaries
-            zoomValue = Math.max(50, Math.min(150, zoomValue));
-            $(this).val(zoomValue);
-            
-            $('#n8n_chat_widget_zoom_slider').val(zoomValue);
-            updateZoomPreview(zoomValue);
+
+        frame.open();
+    }
+
+    /**
+     * Import/Export Settings
+     */
+    function initImportExport() {
+        // Export
+        $('#export-settings').on('click', function() {
+            const $btn = $(this);
+            $btn.prop('disabled', true);
+
+            $.ajax({
+                url: n8nchwiAdmin.ajaxUrl,
+                type: 'POST',
+                data: {
+                    action: 'n8nchwi_export_settings',
+                    nonce: n8nchwiAdmin.nonce
+                },
+                success: function(response) {
+                    if (response.success) {
+                        const blob = new Blob([response.data.settings], { type: 'application/json' });
+                        const url = URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = 'n8n-chat-widget-settings.json';
+                        a.click();
+                        URL.revokeObjectURL(url);
+                        showNotice('success', n8nchwiAdmin.exportSuccess);
+                    }
+                },
+                complete: function() {
+                    $btn.prop('disabled', false);
+                }
+            });
         });
-        
-        // Update the preview title when widget title changes
+
+        // Import Toggle
+        $('#import-settings').on('click', function() {
+            $('#import-field').slideToggle();
+        });
+
+        // Confirm Import
+        $('#confirm-import').on('click', function() {
+            const settings = $('#import-data').val().trim();
+
+            if (!settings) {
+                alert('Please paste your settings JSON.');
+                return;
+            }
+
+            try {
+                JSON.parse(settings);
+            } catch (e) {
+                alert('Invalid JSON format.');
+                return;
+            }
+
+            const $btn = $(this);
+            $btn.prop('disabled', true);
+
+            $.ajax({
+                url: n8nchwiAdmin.ajaxUrl,
+                type: 'POST',
+                data: {
+                    action: 'n8nchwi_import_settings',
+                    nonce: n8nchwiAdmin.nonce,
+                    settings: settings
+                },
+                success: function(response) {
+                    if (response.success) {
+                        showNotice('success', n8nchwiAdmin.importSuccess);
+                        setTimeout(function() {
+                            location.reload();
+                        }, 1500);
+                    } else {
+                        alert(response.data || 'Import failed.');
+                        $btn.prop('disabled', false);
+                    }
+                },
+                error: function() {
+                    alert('Import failed. Please try again.');
+                    $btn.prop('disabled', false);
+                }
+            });
+        });
+    }
+
+    /**
+     * Reset Settings
+     */
+    function initResetSettings() {
+        $('#reset-settings').on('click', function() {
+            if (!confirm(n8nchwiAdmin.confirmReset)) {
+                return;
+            }
+
+            const $btn = $(this);
+            $btn.prop('disabled', true);
+
+            $.ajax({
+                url: n8nchwiAdmin.ajaxUrl,
+                type: 'POST',
+                data: {
+                    action: 'n8nchwi_reset_settings',
+                    nonce: n8nchwiAdmin.nonce
+                },
+                success: function(response) {
+                    if (response.success) {
+                        showNotice('success', n8nchwiAdmin.resetSuccess);
+                        setTimeout(function() {
+                            location.reload();
+                        }, 1500);
+                    } else {
+                        alert(response.data || 'Reset failed.');
+                        $btn.prop('disabled', false);
+                    }
+                },
+                error: function() {
+                    alert('Reset failed. Please try again.');
+                    $btn.prop('disabled', false);
+                }
+            });
+        });
+    }
+
+    /**
+     * Live Preview Updates
+     */
+    function initLivePreview() {
+        // Title
         $('#n8n_chat_widget_title').on('input', function() {
-            const title = $(this).val() || 'Chat Support';
-            $('#preview-widget-title').text(title);
+            $('#preview-title').text($(this).val() || 'Chat Support');
         });
-        
-        // Handle position changes for the preview text
+
+        // Position
         $('#n8n_chat_widget_position').on('change', function() {
             const position = $(this).val();
-            if (typeof n8nchwiSettings !== 'undefined' && n8nchwiSettings.positionTemplate) {
-                const positionText = n8nchwiSettings.positionTemplate.replace('%s', position);
-                $('#preview-position-text').text(positionText);
-            }
+            $('#preview-position-text').text('Position: Bottom ' + position);
         });
-        
-        // Handle iframe load error
-        $('#zoom-preview-iframe').on('error', function() {
-            $(this).parent().html('<div style="padding: 15px; color: #d63638;">Error loading preview. Please check your N8N Chat URL.</div>');
-        });
+    }
 
-        // Trigger Save button when clicking the top "Save Changes" button
-        $('#preview-save-changes').on('click', function(e) {
-            e.preventDefault();
-            
-            // Show loading state for the button
-            const $button = $(this);
-            const originalText = $button.text();
-            $button.prop('disabled', true).css('opacity', '0.7').text('Saving...');
-            
-            // Submit the form
-            $('#n8n-chat-settings-form').submit();
-            
-            // Restore button state after a short delay (visual feedback)
-            setTimeout(function() {
-                $button.prop('disabled', false).css('opacity', '1').text(originalText);
-                
-                // Flash success message
-                const $successMessage = $('<div>', {
-                    class: 'notice notice-success is-dismissible inline',
-                    style: 'padding: 10px; margin: 0 0 0 15px; display: inline-block;',
-                    html: '<p>Settings saved successfully!</p>'
-                });
-                
-                $button.after($successMessage);
-                
-                // Auto-remove the message after 3 seconds
-                setTimeout(function() {
-                    $successMessage.fadeOut(300, function() {
-                        $(this).remove();
-                    });
-                }, 3000);
-            }, 1000);
-        });
-        
-        // Allow Enter key to submit the form
-        $('#n8n_chat_widget_url').on('keypress', function(e) {
-            if (e.which === 13) { // Enter key
-                e.preventDefault();
-                $('#load-preview-button').click();
-                return false;
-            }
-        });
-
-        // URL validation
+    /**
+     * Form Validation
+     */
+    function initFormValidation() {
         $('#n8n_chat_widget_url').on('blur', function() {
             const url = $(this).val().trim();
             if (url && !isValidUrl(url)) {
-                $(this).css('border-color', '#d63638');
-                if (!$('#url-error-message').length) {
-                    $(this).after('<p id="url-error-message" class="description" style="color: #d63638;">Please enter a valid URL starting with http:// or https://</p>');
-                }
+                $(this).css('border-color', '#ef4444');
             } else {
                 $(this).css('border-color', '');
-                $('#url-error-message').remove();
             }
         });
 
-        // URL validation helper function
-        function isValidUrl(string) {
-            try {
-                const url = new URL(string);
-                return url.protocol === 'http:' || url.protocol === 'https:';
-            } catch (_) {
-                return false;
-            }
-        }
-
-        // Also handle the form submission to update the preview immediately if URL changed
         $('#n8n-chat-settings-form').on('submit', function(e) {
-            // Validate URL before submitting
             const url = $('#n8n_chat_widget_url').val().trim();
             if (url && !isValidUrl(url)) {
                 e.preventDefault();
@@ -339,12 +386,43 @@
                 $('#n8n_chat_widget_url').focus();
                 return false;
             }
-
-            // Store the current URL to check if it changed
-            const currentUrl = $('#n8n_chat_widget_url').val();
-            const currentUrlField = $('<input type="hidden" name="previous_url" />').val(currentUrl);
-            $(this).append(currentUrlField);
         });
-    });
+    }
 
-})(jQuery); 
+    /**
+     * Helper Functions
+     */
+    function updatePreviewColor(color) {
+        $('#preview-header').css('background', color);
+        $('#preview-button').css('background', color);
+    }
+
+    function updatePreviewIcon(icon) {
+        $('#preview-icon').text(icon);
+    }
+
+    function updatePreviewZoom(zoom) {
+        const scale = zoom / 100;
+        $('#preview-iframe').css('transform', 'scale(' + scale + ')');
+    }
+
+    function isValidUrl(string) {
+        try {
+            const url = new URL(string);
+            return url.protocol === 'http:' || url.protocol === 'https:';
+        } catch (_) {
+            return false;
+        }
+    }
+
+    function showNotice(type, message) {
+        const $notice = $('<div class="notice notice-' + type + ' is-dismissible" style="position: fixed; top: 50px; right: 20px; z-index: 9999; padding: 12px 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);"><p>' + message + '</p></div>');
+        $('body').append($notice);
+        setTimeout(function() {
+            $notice.fadeOut(300, function() {
+                $(this).remove();
+            });
+        }, 3000);
+    }
+
+})(jQuery);
