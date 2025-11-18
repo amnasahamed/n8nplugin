@@ -12,15 +12,73 @@ class N8NCHWI_Admin {
         add_action('admin_menu', array($this, 'add_settings_page'), 9);
         add_action('admin_init', array($this, 'register_settings'));
         add_action('admin_enqueue_scripts', array($this, 'enqueue_admin_scripts'));
-        
+
         // Add an admin notice to make settings more visible
         add_action('admin_notices', array($this, 'admin_notice'));
-        
+
         // Add media uploader scripts
         add_action('admin_enqueue_scripts', array($this, 'enqueue_media_uploader'));
-        
+
         // Handle settings update
         add_action('admin_init', array($this, 'handle_settings_update'));
+
+        // AJAX handler for connection testing
+        add_action('wp_ajax_n8nchwi_test_connection', array($this, 'ajax_test_connection'));
+    }
+
+    /**
+     * AJAX handler to test n8n chat URL connection
+     */
+    public function ajax_test_connection() {
+        // Verify nonce
+        if (!isset($_POST['nonce']) || !wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['nonce'])), 'n8nchwi_test_connection')) {
+            wp_send_json_error(array('message' => __('Security check failed.', 'n8n-chat-widget')));
+        }
+
+        // Check capabilities
+        if (!current_user_can('manage_options')) {
+            wp_send_json_error(array('message' => __('Permission denied.', 'n8n-chat-widget')));
+        }
+
+        // Get URL from request
+        $url = isset($_POST['url']) ? esc_url_raw(wp_unslash($_POST['url'])) : '';
+
+        if (empty($url)) {
+            wp_send_json_error(array('message' => __('Please enter a URL to test.', 'n8n-chat-widget')));
+        }
+
+        // Validate URL format
+        if (!filter_var($url, FILTER_VALIDATE_URL)) {
+            wp_send_json_error(array('message' => __('Invalid URL format.', 'n8n-chat-widget')));
+        }
+
+        // Test the connection
+        $response = wp_remote_head($url, array(
+            'timeout' => 10,
+            'sslverify' => true,
+            'user-agent' => 'n8n-chat-widget/' . N8N_CHAT_WIDGET_VERSION,
+        ));
+
+        if (is_wp_error($response)) {
+            $error_message = $response->get_error_message();
+            wp_send_json_error(array(
+                'message' => sprintf(__('Connection failed: %s', 'n8n-chat-widget'), $error_message)
+            ));
+        }
+
+        $response_code = wp_remote_retrieve_response_code($response);
+
+        if ($response_code >= 200 && $response_code < 400) {
+            wp_send_json_success(array(
+                'message' => __('Connection successful! Your n8n chat URL is reachable.', 'n8n-chat-widget'),
+                'code' => $response_code
+            ));
+        } else {
+            wp_send_json_error(array(
+                'message' => sprintf(__('Server returned error code: %d', 'n8n-chat-widget'), $response_code),
+                'code' => $response_code
+            ));
+        }
     }
 
     /**
@@ -41,9 +99,17 @@ class N8NCHWI_Admin {
         // Add custom admin script (consolidated - includes all admin functionality)
         wp_enqueue_script('n8n-chat-widget-admin-js', N8N_CHAT_WIDGET_URL . 'admin/js/n8n-chat-widget-admin.js', array('jquery', 'wp-color-picker'), N8N_CHAT_WIDGET_VERSION, true);
 
-        // Localize script with translated strings
+        // Localize script with translated strings and AJAX data
         wp_localize_script('n8n-chat-widget-admin-js', 'n8nchwiSettings', array(
-            'positionTemplate' => /* translators: %s: position of the chat button (left or right) */ esc_html__('This chat button will appear in the bottom %s corner of your website.', 'n8n-chat-widget')
+            'positionTemplate' => /* translators: %s: position of the chat button (left or right) */ esc_html__('This chat button will appear in the bottom %s corner of your website.', 'n8n-chat-widget'),
+            'ajaxUrl' => admin_url('admin-ajax.php'),
+            'testConnectionNonce' => wp_create_nonce('n8nchwi_test_connection'),
+            'strings' => array(
+                'testing' => __('Testing...', 'n8n-chat-widget'),
+                'testConnection' => __('Test Connection', 'n8n-chat-widget'),
+                'connected' => __('Connected', 'n8n-chat-widget'),
+                'failed' => __('Failed', 'n8n-chat-widget'),
+            )
         ));
     }
 
@@ -629,14 +695,28 @@ class N8NCHWI_Admin {
      */
     private function render_settings_fields() {
         // Chat URL field
-        echo '<div class="n8n-setting-field" style="margin-bottom: 20px;">';
+        echo '<div class="n8n-setting-field n8n-url-field" style="margin-bottom: 20px;">';
         echo '<label for="n8n_chat_widget_url" style="display: block; font-weight: 600; margin-bottom: 8px;">' . esc_html__('n8n Chat URL', 'n8n-chat-widget') . '</label>';
-        echo '<div style="display: flex; align-items: center;">';
+
+        // Connection status indicator
         $url = get_option('n8n_chat_widget_url');
-        echo '<input type="url" id="n8n_chat_widget_url" name="n8n_chat_widget_url" value="' . esc_attr($url) . '" class="regular-text" style="flex: 1; margin-right: 10px;" placeholder="https://n8n.example.com/webhook/your-chat-id/chat" />';
-        echo '<button type="button" id="load-preview-button" class="button button-secondary">' . esc_html__('Save & Preview', 'n8n-chat-widget') . '</button>';
+        echo '<div class="n8n-connection-status-wrapper" style="margin-bottom: 8px;">';
+        echo '<span id="n8n-connection-status" class="n8n-connection-status' . (empty($url) ? '' : ' status-unknown') . '">';
+        if (!empty($url)) {
+            echo '<span class="status-dot"></span>';
+            echo '<span class="status-text">' . esc_html__('Not tested', 'n8n-chat-widget') . '</span>';
+        }
+        echo '</span>';
         echo '</div>';
-        echo '<p class="description">' . esc_html__('Enter the full URL of your n8n chat webhook.', 'n8n-chat-widget') . '</p>';
+
+        echo '<div class="n8n-url-input-wrapper" style="display: flex; align-items: center; gap: 8px;">';
+        echo '<input type="url" id="n8n_chat_widget_url" name="n8n_chat_widget_url" value="' . esc_attr($url) . '" class="regular-text" style="flex: 1;" placeholder="https://n8n.example.com/webhook/your-chat-id/chat" />';
+        echo '<button type="button" id="n8n-test-connection" class="button button-secondary">' . esc_html__('Test Connection', 'n8n-chat-widget') . '</button>';
+        echo '</div>';
+
+        echo '<div id="n8n-connection-message" class="n8n-connection-message" style="display: none; margin-top: 8px; padding: 8px 12px; border-radius: 4px;"></div>';
+
+        echo '<p class="description" style="margin-top: 8px;">' . esc_html__('Enter the full URL of your n8n chat webhook.', 'n8n-chat-widget') . '</p>';
         echo '<details class="chat-url-help" style="margin-top: 10px;">';
         echo '<summary style="cursor: pointer; color: #0073aa; font-weight: 500; margin-bottom: 10px;">' . esc_html__('Need help getting your Chat URL?', 'n8n-chat-widget') . '</summary>';
         echo '<div style="padding: 15px; background: #f8f8f8; border-left: 4px solid #45d3d3; border-radius: 4px; margin-top: 5px;">';

@@ -10,11 +10,108 @@
             change: function(event, ui) {
                 // Get the color value
                 const colorValue = ui.color.toString();
-                
+
                 // Update all color-dependent elements in the preview
                 updateColorInPreview(colorValue);
             },
             palettes: true
+        });
+
+        // Connection Test Functionality
+        $('#n8n-test-connection').on('click', function() {
+            const $button = $(this);
+            const $urlInput = $('#n8n_chat_widget_url');
+            const $status = $('#n8n-connection-status');
+            const $message = $('#n8n-connection-message');
+            const url = $urlInput.val().trim();
+
+            // Validate URL exists
+            if (!url) {
+                updateConnectionStatus('error', n8nchwiSettings.strings.failed);
+                showConnectionMessage('error', 'Please enter a URL to test.');
+                $urlInput.focus();
+                return;
+            }
+
+            // Validate URL format
+            if (!isValidUrl(url)) {
+                updateConnectionStatus('error', n8nchwiSettings.strings.failed);
+                showConnectionMessage('error', 'Please enter a valid URL starting with http:// or https://');
+                $urlInput.focus();
+                return;
+            }
+
+            // Set testing state
+            $button.prop('disabled', true).addClass('testing').text(n8nchwiSettings.strings.testing);
+            updateConnectionStatus('testing', n8nchwiSettings.strings.testing);
+            $message.hide();
+
+            // Make AJAX request
+            $.ajax({
+                url: n8nchwiSettings.ajaxUrl,
+                type: 'POST',
+                data: {
+                    action: 'n8nchwi_test_connection',
+                    nonce: n8nchwiSettings.testConnectionNonce,
+                    url: url
+                },
+                success: function(response) {
+                    if (response.success) {
+                        updateConnectionStatus('success', n8nchwiSettings.strings.connected);
+                        showConnectionMessage('success', response.data.message);
+                    } else {
+                        updateConnectionStatus('error', n8nchwiSettings.strings.failed);
+                        showConnectionMessage('error', response.data.message);
+                    }
+                },
+                error: function(xhr, status, error) {
+                    updateConnectionStatus('error', n8nchwiSettings.strings.failed);
+                    showConnectionMessage('error', 'Network error. Please check your connection and try again.');
+                },
+                complete: function() {
+                    $button.prop('disabled', false).removeClass('testing').text(n8nchwiSettings.strings.testConnection);
+                }
+            });
+        });
+
+        // Helper function to update connection status indicator
+        function updateConnectionStatus(status, text) {
+            const $statusEl = $('#n8n-connection-status');
+
+            // Ensure status indicator has content
+            if (!$statusEl.find('.status-dot').length) {
+                $statusEl.html('<span class="status-dot"></span><span class="status-text"></span>');
+            }
+
+            // Update classes
+            $statusEl.removeClass('status-unknown status-testing status-success status-error')
+                     .addClass('status-' + status);
+
+            // Update text
+            $statusEl.find('.status-text').text(text);
+        }
+
+        // Helper function to show connection message
+        function showConnectionMessage(type, message) {
+            const $message = $('#n8n-connection-message');
+            $message.removeClass('message-success message-error')
+                    .addClass('message-' + type)
+                    .text(message)
+                    .show();
+        }
+
+        // Auto-test connection when URL changes (debounced)
+        let urlTestTimeout;
+        $('#n8n_chat_widget_url').on('input', function() {
+            const url = $(this).val().trim();
+
+            // Reset status when URL changes
+            if (url) {
+                updateConnectionStatus('unknown', 'Not tested');
+            } else {
+                $('#n8n-connection-status').empty().removeClass('status-unknown status-testing status-success status-error');
+            }
+            $('#n8n-connection-message').hide();
         });
 
         // Function to update all color elements in the preview

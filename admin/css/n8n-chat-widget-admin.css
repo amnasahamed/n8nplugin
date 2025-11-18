@@ -11,6 +11,104 @@
     --n8n-admin-shadow-lg: 0 10px 30px rgba(0, 0, 0, 0.12);
     --n8n-admin-radius: 12px;
     --n8n-admin-transition: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    --n8n-admin-success: #107c10;
+    --n8n-admin-error: #d13438;
+    --n8n-admin-warning: #ffb900;
+}
+
+/* Connection Status Indicator */
+.n8n-connection-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.n8n-connection-status .status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: #8a8886;
+    transition: all var(--n8n-admin-transition);
+}
+
+.n8n-connection-status .status-text {
+    color: #8a8886;
+    transition: color var(--n8n-admin-transition);
+}
+
+.n8n-connection-status.status-unknown .status-dot {
+    background-color: #8a8886;
+}
+
+.n8n-connection-status.status-testing .status-dot {
+    background-color: var(--n8n-admin-warning);
+    animation: pulse-dot 1s infinite;
+}
+
+.n8n-connection-status.status-testing .status-text {
+    color: var(--n8n-admin-warning);
+}
+
+.n8n-connection-status.status-success .status-dot {
+    background-color: var(--n8n-admin-success);
+    box-shadow: 0 0 0 3px rgba(16, 124, 16, 0.2);
+}
+
+.n8n-connection-status.status-success .status-text {
+    color: var(--n8n-admin-success);
+}
+
+.n8n-connection-status.status-error .status-dot {
+    background-color: var(--n8n-admin-error);
+    box-shadow: 0 0 0 3px rgba(209, 52, 56, 0.2);
+}
+
+.n8n-connection-status.status-error .status-text {
+    color: var(--n8n-admin-error);
+}
+
+@keyframes pulse-dot {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.4;
+    }
+}
+
+/* Connection Message */
+.n8n-connection-message {
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+.n8n-connection-message.message-success {
+    background-color: rgba(16, 124, 16, 0.1);
+    border: 1px solid rgba(16, 124, 16, 0.3);
+    color: var(--n8n-admin-success);
+}
+
+.n8n-connection-message.message-error {
+    background-color: rgba(209, 52, 56, 0.1);
+    border: 1px solid rgba(209, 52, 56, 0.3);
+    color: var(--n8n-admin-error);
+}
+
+/* Test Connection Button */
+#n8n-test-connection {
+    white-space: nowrap;
+    transition: all var(--n8n-admin-transition);
+}
+
+#n8n-test-connection:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+#n8n-test-connection.testing {
+    pointer-events: none;
 }
 
 /* Modern card styling for settings and preview containers */
