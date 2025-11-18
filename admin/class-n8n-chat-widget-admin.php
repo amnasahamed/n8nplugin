@@ -376,104 +376,13 @@ class N8NCHWI_Admin {
      */
     public function render_zoom_field() {
         $zoom = get_option('n8n_chat_widget_zoom', '100');
-        $chat_url = get_option('n8n_chat_widget_url');
-        $color = get_option('n8n_chat_widget_color', '#45d3d3');
-        $title = get_option('n8n_chat_widget_title', 'Chat Support');
-        $position = get_option('n8n_chat_widget_position', 'right');
         ?>
-        <div class="zoom-settings-container" style="display: flex; flex-wrap: wrap; gap: 30px; align-items: flex-start;">
-            <!-- Left column: Zoom controls -->
-            <div class="zoom-controls" style="flex: 1; min-width: 280px;">
-                <div class="zoom-control" style="display: flex; align-items: center;">
-                    <input type="range" id="n8n_chat_widget_zoom_slider" min="50" max="150" step="5" value="<?php echo esc_attr($zoom); ?>" style="flex: 1;" />
-                    <input type="number" id="n8n_chat_widget_zoom" name="n8n_chat_widget_zoom" value="<?php echo esc_attr($zoom); ?>" min="50" max="150" step="5" style="width: 65px; margin-left: 10px;" />
-                    <span style="margin-left: 5px;">%</span>
-                </div>
-                <p class="description"><?php esc_html_e('Adjust the zoom level of the chat content (50% - 150%).', 'n8n-chat-widget'); ?></p>
-                <p class="description"><?php esc_html_e('This setting affects how the chat content is displayed in the widget.', 'n8n-chat-widget'); ?></p>
-            </div>
-            
-            <!-- Right column: Preview -->
-            <div class="preview-wrapper n8n-preview-wrapper" style="flex: 1; min-width: 350px; display: flex; flex-direction: column; align-items: center;">
-                <?php if (!empty($chat_url)) : ?>
-                <h4 style="margin-top: 0; align-self: flex-start;"><?php esc_html_e('Live Preview', 'n8n-chat-widget'); ?></h4>
-                <div class="n8n-chat-widget-preview" style="position: relative; width: 350px; height: 500px; border-radius: 12px; box-shadow: 0 5px 25px rgba(0, 0, 0, 0.2); overflow: hidden; flex-shrink: 0;">
-                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 15px; background-color: <?php echo esc_attr($color); ?>; color: white;">
-                        <div style="font-weight: bold; font-size: 16px;"><?php echo esc_html($title); ?></div>
-                        <button type="button" style="background: none; border: none; color: white; font-size: 24px; cursor: pointer; line-height: 1; padding: 0; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center;">&times;</button>
-                    </div>
-                    <div style="position: relative; height: calc(100% - 60px); overflow: hidden;">
-                        <div id="preview-loading-spinner" class="preview-loading-spinner" style="position: absolute; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background-color: #fff; z-index: 1;">
-                            <div style="width: 40px; height: 40px; border: 4px solid #f3f3f3; border-top: 4px solid <?php echo esc_attr($color); ?>; border-radius: 50%; animation: n8n-chat-widget-spin 1s linear infinite;"></div>
-                        </div>
-                        <iframe id="zoom-preview-iframe" src="<?php echo esc_url($chat_url); ?>" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; transform-origin: top left; transform: scale(<?php echo esc_attr($zoom / 100); ?>);"></iframe>
-                    </div>
-                </div>
-                <p class="description" style="margin-top: 10px;"><?php esc_html_e('This is how your chat will appear with the current zoom level.', 'n8n-chat-widget'); ?></p>
-                <?php else : ?>
-                <h4 style="margin-top: 0; align-self: flex-start;"><?php esc_html_e('Preview', 'n8n-chat-widget'); ?></h4>
-                <div class="n8n-chat-widget-preview" style="position: relative; width: 350px; height: 500px; border-radius: 12px; box-shadow: 0 5px 25px rgba(0, 0, 0, 0.2); overflow: hidden; flex-shrink: 0;">
-                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 15px; background-color: <?php echo esc_attr($color); ?>; color: white;">
-                        <div style="font-weight: bold; font-size: 16px;"><?php echo esc_html($title); ?></div>
-                        <button type="button" style="background: none; border: none; color: white; font-size: 24px; cursor: pointer; line-height: 1; padding: 0; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center;">&times;</button>
-                    </div>
-                    <div style="height: calc(100% - 60px); padding: 20px; background-color: #f9f9f9; overflow-y: auto;">
-                        <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen-Sans, Ubuntu, Cantarell, 'Helvetica Neue', sans-serif;">
-                            <p style="margin-bottom: 15px; padding: 12px; background-color: #e9e9e9; border-radius: 18px 18px 18px 4px; max-width: 80%;"><strong>User:</strong> Hello, I need some help!</p>
-                            <p style="margin-bottom: 15px; padding: 12px; background-color: #d9f4f4; border-radius: 18px 18px 4px 18px; margin-left: 20%; max-width: 80%;"><strong>Bot:</strong> Hi there! How can I assist you today?</p>
-                            <p style="margin-bottom: 15px; padding: 12px; background-color: #e9e9e9; border-radius: 18px 18px 18px 4px; max-width: 80%;"><strong>User:</strong> I have a question about...</p>
-                        </div>
-                    </div>
-                </div>
-                <p class="description" style="margin-top: 10px; color: #d63638;"><?php esc_html_e('Please enter an n8n Chat URL above to see a live preview.', 'n8n-chat-widget'); ?></p>
-                <?php endif; ?>
-                
-                <!-- Chat button preview -->
-                <div style="margin-top: 30px; display: flex; align-items: center; justify-content: space-between; width: 350px; padding: 20px; background: #f8f8f8; border-radius: 8px; flex-shrink: 0;" class="button-preview-container">
-                    <div>
-                        <h4 style="margin-top: 0; margin-bottom: 10px;"><?php esc_html_e('Button Preview', 'n8n-chat-widget'); ?></h4>
-                        <div id="preview-chat-button" style="width: 60px; height: 60px; border-radius: 50%; background-color: <?php echo esc_attr($color); ?>; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2); display: flex; align-items: center; justify-content: center; color: white; font-size: 24px;">
-                            <span id="preview-button-icon">
-                            <?php 
-                            $icon_type = get_option('n8n_chat_widget_icon_type', 'emoji');
-                            $icon = get_option('n8n_chat_widget_icon', '💬');
-                            $svg_icon = get_option('n8n_chat_widget_svg_icon', '');
-                            
-                            if ($icon_type === 'emoji') {
-                                echo esc_html($icon);
-                            } elseif (!empty($svg_icon)) {
-                                $attachment_id = attachment_url_to_postid($svg_icon);
-                                if ($attachment_id) {
-                                    echo wp_get_attachment_image($attachment_id, array(24, 24), false, array(
-                                        'style' => 'max-width: 60%; max-height: 60%; filter: brightness(0) invert(1);',
-                                        'alt' => esc_attr__('Chat', 'n8n-chat-widget')
-                                    ));
-                                } else {
-                                    echo wp_kses_post(n8nchwi_display_svg($svg_icon, array(24, 24), array(
-                                        'style' => 'max-width: 60%; max-height: 60%; filter: brightness(0) invert(1);',
-                                        'alt' => esc_attr__('Chat', 'n8n-chat-widget')
-                                    )));
-                                }
-                            } else {
-                                echo '💬';
-                            }
-                            ?>
-                            </span>
-                        </div>
-                    </div>
-                    <p id="preview-position-text" class="description" style="margin-left: 15px; flex: 1; max-width: 250px;">
-                        <?php 
-                        printf(
-                            /* translators: %s: position of the chat button (left or right) */
-                            esc_html__('This chat button will appear in the bottom %s corner of your website.', 'n8n-chat-widget'),
-                            esc_html($position)
-                        );
-                        ?>
-                    </p>
-                </div>
-            </div>
+        <div class="zoom-control" style="display: flex; align-items: center; max-width: 400px;">
+            <input type="range" id="n8n_chat_widget_zoom_slider" min="50" max="150" step="5" value="<?php echo esc_attr($zoom); ?>" style="flex: 1;" />
+            <input type="number" id="n8n_chat_widget_zoom" name="n8n_chat_widget_zoom" value="<?php echo esc_attr($zoom); ?>" min="50" max="150" step="5" style="width: 65px; margin-left: 10px;" />
+            <span style="margin-left: 5px;">%</span>
         </div>
-        
+        <p class="description"><?php esc_html_e('Adjust the zoom level of the chat content (50% - 150%).', 'n8n-chat-widget'); ?></p>
         <?php
     }
 
@@ -630,13 +539,13 @@ class N8NCHWI_Admin {
     private function render_settings_fields() {
         // Chat URL field
         echo '<div class="n8n-setting-field" style="margin-bottom: 20px;">';
-        echo '<label for="n8n_chat_widget_url" style="display: block; font-weight: 600; margin-bottom: 8px;">' . esc_html__('n8n Chat URL', 'n8n-chat-widget') . '</label>';
+        echo '<label for="n8n_chat_widget_url" style="display: block; font-weight: 600; margin-bottom: 8px;">' . esc_html__('n8n Chat URL', 'n8n-chat-widget') . ' <span class="n8n-required">*</span></label>';
         echo '<div style="display: flex; align-items: center;">';
         $url = get_option('n8n_chat_widget_url');
-        echo '<input type="url" id="n8n_chat_widget_url" name="n8n_chat_widget_url" value="' . esc_attr($url) . '" class="regular-text" style="flex: 1; margin-right: 10px;" placeholder="https://n8n.example.com/webhook/your-chat-id/chat" />';
-        echo '<button type="button" id="load-preview-button" class="button button-secondary">' . esc_html__('Save & Preview', 'n8n-chat-widget') . '</button>';
+        echo '<input type="url" id="n8n_chat_widget_url" name="n8n_chat_widget_url" value="' . esc_attr($url) . '" class="regular-text" style="flex: 1; margin-right: 10px;" placeholder="https://n8n.example.com/webhook/your-chat-id/chat" required />';
+        echo '<button type="button" id="load-preview-button" class="button button-secondary">' . esc_html__('Test URL', 'n8n-chat-widget') . '</button>';
         echo '</div>';
-        echo '<p class="description">' . esc_html__('Enter the full URL of your n8n chat webhook.', 'n8n-chat-widget') . '</p>';
+        echo '<p class="description">' . esc_html__('Enter the full URL of your n8n chat webhook. This field is required.', 'n8n-chat-widget') . '</p>';
         echo '<details class="chat-url-help" style="margin-top: 10px;">';
         echo '<summary style="cursor: pointer; color: #0073aa; font-weight: 500; margin-bottom: 10px;">' . esc_html__('Need help getting your Chat URL?', 'n8n-chat-widget') . '</summary>';
         echo '<div style="padding: 15px; background: #f8f8f8; border-left: 4px solid #45d3d3; border-radius: 4px; margin-top: 5px;">';
@@ -660,9 +569,12 @@ class N8NCHWI_Admin {
         echo '<div class="n8n-setting-field" style="margin-bottom: 20px;">';
         echo '<label for="n8n_chat_widget_enabled" style="display: block; font-weight: 600; margin-bottom: 8px;">' . esc_html__('Enable Chat Widget', 'n8n-chat-widget') . '</label>';
         $enabled = get_option('n8n_chat_widget_enabled', 'yes');
-        echo '<label>';
+        // Hidden field ensures a value is always submitted (checkboxes don't send value when unchecked)
+        echo '<input type="hidden" name="n8n_chat_widget_enabled" value="no" />';
+        echo '<label class="n8n-toggle-switch">';
         echo '<input type="checkbox" id="n8n_chat_widget_enabled" name="n8n_chat_widget_enabled" value="yes" ' . checked('yes', $enabled, false) . ' />';
-        echo esc_html__('Enable chat widget on the website', 'n8n-chat-widget');
+        echo '<span class="n8n-toggle-slider"></span>';
+        echo '<span class="n8n-toggle-label">' . esc_html__('Enable chat widget on the website', 'n8n-chat-widget') . '</span>';
         echo '</label>';
         echo '</div>';
         
@@ -813,13 +725,28 @@ class N8NCHWI_Admin {
                 add_settings_error('n8n_chat_widget_messages', 'n8n_chat_widget_errors', __('Security check failed. Please try again.', 'n8n-chat-widget'), 'error');
                 return;
             }
-            
-            // Add a success message if settings were updated
+        }
+
+        // Show success notice on settings page after redirect
+        if (isset($_GET['settings-updated']) && $_GET['settings-updated'] === 'true') {
             add_action('admin_notices', function() {
                 ?>
-                <div class="notice notice-success is-dismissible">
-                    <p><?php esc_html_e('N8n Chat Widget settings updated successfully.', 'n8n-chat-widget'); ?></p>
+                <div class="notice notice-success is-dismissible n8n-save-success">
+                    <p>
+                        <strong><?php esc_html_e('Settings saved!', 'n8n-chat-widget'); ?></strong>
+                        <?php esc_html_e('Your n8n Chat Widget settings have been updated successfully.', 'n8n-chat-widget'); ?>
+                    </p>
                 </div>
+                <style>
+                    .n8n-save-success {
+                        border-left-color: #45d3d3 !important;
+                        animation: n8n-notice-fade-in 0.3s ease-out;
+                    }
+                    @keyframes n8n-notice-fade-in {
+                        from { opacity: 0; transform: translateY(-10px); }
+                        to { opacity: 1; transform: translateY(0); }
+                    }
+                </style>
                 <?php
             });
         }

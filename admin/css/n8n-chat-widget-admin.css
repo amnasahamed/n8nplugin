@@ -567,4 +567,158 @@
     background: #f8f8f8 !important;
     border-radius: 8px !important;
     flex-shrink: 0 !important;
+}
+
+/* Required field indicator */
+.n8n-required {
+    color: #d63638;
+    font-weight: bold;
+    margin-left: 2px;
+}
+
+/* Toggle Switch Styles */
+.n8n-toggle-switch {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    cursor: pointer;
+    user-select: none;
+}
+
+.n8n-toggle-switch input[type="checkbox"] {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.n8n-toggle-slider {
+    position: relative;
+    display: inline-block;
+    width: 50px;
+    height: 26px;
+    background-color: #ccc;
+    border-radius: 26px;
+    transition: all var(--n8n-admin-transition);
+    margin-right: 12px;
+    flex-shrink: 0;
+}
+
+.n8n-toggle-slider::before {
+    content: "";
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    border-radius: 50%;
+    transition: all var(--n8n-admin-transition);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.n8n-toggle-switch input:checked + .n8n-toggle-slider {
+    background: linear-gradient(135deg, var(--n8n-admin-primary) 0%, var(--n8n-admin-primary-dark) 100%);
+}
+
+.n8n-toggle-switch input:checked + .n8n-toggle-slider::before {
+    transform: translateX(24px);
+}
+
+.n8n-toggle-switch input:focus + .n8n-toggle-slider {
+    box-shadow: 0 0 0 3px rgba(69, 211, 211, 0.3);
+}
+
+.n8n-toggle-switch:hover .n8n-toggle-slider {
+    background-color: #b3b3b3;
+}
+
+.n8n-toggle-switch input:checked:hover + .n8n-toggle-slider {
+    background: linear-gradient(135deg, var(--n8n-admin-primary-dark) 0%, #2a9999 100%);
+}
+
+.n8n-toggle-label {
+    font-weight: normal;
+    color: #374151;
+}
+
+/* Selected icon state */
+.icon-option.selected {
+    background: linear-gradient(135deg, rgba(69, 211, 211, 0.2) 0%, rgba(55, 178, 178, 0.2) 100%) !important;
+    border-color: var(--n8n-admin-primary) !important;
+    box-shadow: 0 0 0 3px rgba(69, 211, 211, 0.15), var(--n8n-admin-shadow-sm) !important;
+    transform: scale(1.05);
+}
+
+.icon-option.selected::after {
+    content: "";
+    position: absolute;
+    bottom: -4px;
+    right: -4px;
+    width: 16px;
+    height: 16px;
+    background: var(--n8n-admin-primary);
+    border-radius: 50%;
+    border: 2px solid white;
+    box-shadow: var(--n8n-admin-shadow-sm);
+}
+
+/* Form validation states */
+.n8n-setting-field input:invalid {
+    border-color: #d63638 !important;
+}
+
+.n8n-setting-field input:valid:not(:placeholder-shown) {
+    border-color: #00a32a;
+}
+
+/* Error message styling */
+.n8n-form-error {
+    border-left: 4px solid #d63638 !important;
+    background: #fef7f7 !important;
+}
+
+/* Saving state */
+body.n8n-saving::after {
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255, 255, 255, 0.7);
+    z-index: 9999;
+    cursor: wait;
+}
+
+/* Better focus states for accessibility */
+.n8n-setting-field input:focus,
+.n8n-setting-field select:focus,
+.n8n-setting-field textarea:focus {
+    outline: 2px solid var(--n8n-admin-primary);
+    outline-offset: 2px;
+}
+
+/* Smooth transitions for all form elements */
+.n8n-setting-field input,
+.n8n-setting-field select,
+.n8n-setting-field textarea,
+.n8n-setting-field button {
+    transition: all var(--n8n-admin-transition);
+}
+
+/* Test URL success message */
+.n8n-test-success {
+    animation: fadeInRight 0.3s ease-out;
+}
+
+@keyframes fadeInRight {
+    from {
+        opacity: 0;
+        transform: translateX(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
 } 

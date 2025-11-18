@@ -37,11 +37,23 @@
             updateColorInPreview($(this).val());
         });
 
-        // Handle icon selection
+        // Handle icon selection with visual feedback
         $('.icon-option').on('click', function() {
             const emoji = $(this).text();
             $('#n8n_chat_widget_icon').val(emoji);
             $('#preview-button-icon').text(emoji);
+
+            // Visual feedback - highlight selected icon
+            $('.icon-option').removeClass('selected');
+            $(this).addClass('selected');
+        });
+
+        // Initialize selected state for current emoji
+        const currentEmoji = $('#n8n_chat_widget_icon').val();
+        $('.icon-option').each(function() {
+            if ($(this).text() === currentEmoji) {
+                $(this).addClass('selected');
+            }
         });
         
         // Handle icon type toggle
@@ -265,35 +277,102 @@
         // Trigger Save button when clicking the top "Save Changes" button
         $('#preview-save-changes').on('click', function(e) {
             e.preventDefault();
-            
+
+            // Validate URL before saving
+            const url = $('#n8n_chat_widget_url').val().trim();
+            if (!url) {
+                showFormError('Please enter an n8n Chat URL before saving.');
+                $('#n8n_chat_widget_url').focus().css('border-color', '#d63638');
+                return false;
+            }
+
+            if (!isValidUrl(url)) {
+                showFormError('Please enter a valid URL starting with http:// or https://');
+                $('#n8n_chat_widget_url').focus().css('border-color', '#d63638');
+                return false;
+            }
+
             // Show loading state for the button
             const $button = $(this);
             const originalText = $button.text();
             $button.prop('disabled', true).css('opacity', '0.7').text('Saving...');
-            
-            // Submit the form
+
+            // Add visual feedback before form submit
+            $('body').addClass('n8n-saving');
+
+            // Submit the form - page will reload, WordPress will show admin notice
             $('#n8n-chat-settings-form').submit();
-            
-            // Restore button state after a short delay (visual feedback)
+        });
+
+        // Helper function to show form errors
+        function showFormError(message) {
+            // Remove any existing error
+            $('.n8n-form-error').remove();
+
+            const $errorMessage = $('<div>', {
+                class: 'notice notice-error n8n-form-error',
+                style: 'padding: 12px; margin: 15px 0;',
+                html: '<p><strong>Error:</strong> ' + message + '</p>'
+            });
+
+            $('#n8n-chat-settings-form').prepend($errorMessage);
+
+            // Auto-remove after 5 seconds
             setTimeout(function() {
-                $button.prop('disabled', false).css('opacity', '1').text(originalText);
-                
-                // Flash success message
-                const $successMessage = $('<div>', {
-                    class: 'notice notice-success is-dismissible inline',
-                    style: 'padding: 10px; margin: 0 0 0 15px; display: inline-block;',
-                    html: '<p>Settings saved successfully!</p>'
+                $errorMessage.fadeOut(300, function() {
+                    $(this).remove();
                 });
-                
-                $button.after($successMessage);
-                
-                // Auto-remove the message after 3 seconds
+            }, 5000);
+        }
+
+        // Test URL button functionality
+        $('#load-preview-button').on('click', function(e) {
+            e.preventDefault();
+
+            const url = $('#n8n_chat_widget_url').val().trim();
+            if (!url) {
+                showFormError('Please enter a URL to test.');
+                $('#n8n_chat_widget_url').focus();
+                return;
+            }
+
+            if (!isValidUrl(url)) {
+                showFormError('Please enter a valid URL starting with http:// or https://');
+                $('#n8n_chat_widget_url').focus();
+                return;
+            }
+
+            // Show testing state
+            const $button = $(this);
+            const originalText = $button.text();
+            $button.prop('disabled', true).text('Testing...');
+
+            // Update preview iframe with new URL
+            const $previewIframe = $('#zoom-preview-iframe');
+            if ($previewIframe.length) {
+                $('#preview-loading-spinner').show();
+                $previewIframe.attr('src', url);
+
+                // Show success after iframe loads or timeout
                 setTimeout(function() {
-                    $successMessage.fadeOut(300, function() {
-                        $(this).remove();
+                    $button.prop('disabled', false).text(originalText);
+
+                    // Show success message
+                    const $successMsg = $('<span>', {
+                        class: 'n8n-test-success',
+                        style: 'color: #00a32a; margin-left: 10px; font-weight: 500;',
+                        text: 'URL loaded in preview!'
                     });
-                }, 3000);
-            }, 1000);
+
+                    $button.after($successMsg);
+                    setTimeout(function() {
+                        $successMsg.fadeOut(300, function() { $(this).remove(); });
+                    }, 3000);
+                }, 2000);
+            } else {
+                $button.prop('disabled', false).text(originalText);
+                showFormError('No preview available. Save settings first to enable preview.');
+            }
         });
         
         // Allow Enter key to submit the form
