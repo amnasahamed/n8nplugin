@@ -5,11 +5,12 @@
     'use strict';
 
     // DOM elements
-    let $container, $button, $popup, $closeBtn, $iframe, $loading;
+    let $container, $button, $popup, $closeBtn, $iframe, $loading, $welcomeMessage;
 
     // Track widget state
     let isWidgetOpen = false;
     let hasLoaded = false;
+    let welcomeMessageTimeout = null;
 
     /**
      * Initialize the chat widget
@@ -83,6 +84,93 @@
                 $container.removeClass('n8n-chat-widget-mobile');
             }
         });
+
+        // Initialize welcome message if enabled
+        initWelcomeMessage();
+    }
+
+    /**
+     * Initialize and show welcome message
+     */
+    function initWelcomeMessage() {
+        // Check if welcome message is enabled
+        if (typeof n8nchwiData === 'undefined' || n8nchwiData.welcomeEnabled !== 'yes') {
+            return;
+        }
+
+        // Check if user has already dismissed the welcome message
+        const storageKey = 'n8n_welcome_dismissed';
+        if (localStorage.getItem(storageKey)) {
+            return;
+        }
+
+        // Get message and delay
+        const message = n8nchwiData.welcomeMessage || 'Hi there! How can I help you today?';
+        const delay = (parseInt(n8nchwiData.welcomeDelay, 10) || 3) * 1000;
+
+        // Create welcome message element
+        $welcomeMessage = $('<div>', {
+            class: 'n8n-chat-widget-welcome',
+            html: '<span class="n8n-chat-widget-welcome-text">' + escapeHtml(message) + '</span><button class="n8n-chat-widget-welcome-close" aria-label="Close">&times;</button>'
+        });
+
+        // Insert before the button
+        $button.before($welcomeMessage);
+
+        // Handle click on message (opens chat)
+        $welcomeMessage.on('click', function(e) {
+            if (!$(e.target).hasClass('n8n-chat-widget-welcome-close')) {
+                openChatWidget();
+                hideWelcomeMessage(true);
+            }
+        });
+
+        // Handle close button
+        $welcomeMessage.find('.n8n-chat-widget-welcome-close').on('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            hideWelcomeMessage(true);
+        });
+
+        // Show message after delay
+        welcomeMessageTimeout = setTimeout(function() {
+            $welcomeMessage.addClass('n8n-chat-widget-welcome-visible');
+        }, delay);
+    }
+
+    /**
+     * Hide welcome message
+     */
+    function hideWelcomeMessage(remember) {
+        if ($welcomeMessage) {
+            $welcomeMessage.removeClass('n8n-chat-widget-welcome-visible');
+
+            // Remember dismissal
+            if (remember) {
+                localStorage.setItem('n8n_welcome_dismissed', '1');
+            }
+
+            // Remove element after animation
+            setTimeout(function() {
+                $welcomeMessage.remove();
+                $welcomeMessage = null;
+            }, 500);
+        }
+
+        // Clear timeout if still pending
+        if (welcomeMessageTimeout) {
+            clearTimeout(welcomeMessageTimeout);
+            welcomeMessageTimeout = null;
+        }
+    }
+
+    /**
+     * Escape HTML to prevent XSS
+     */
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.appendChild(document.createTextNode(text));
+        return div.innerHTML;
     }
 
     /**
@@ -103,6 +191,9 @@
         $popup.css('display', 'flex');
         $container.addClass('n8n-chat-widget-open');
         isWidgetOpen = true;
+
+        // Hide welcome message if visible
+        hideWelcomeMessage(false);
 
         // Update ARIA attributes
         $button.attr('aria-expanded', 'true');

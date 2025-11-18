@@ -204,6 +204,22 @@ class N8NCHWI_Admin {
             'default' => 'no',
         ));
 
+        // Welcome message settings
+        register_setting('n8n_chat_widget_options', 'n8n_chat_widget_welcome_enabled', array(
+            'sanitize_callback' => array($this, 'sanitize_checkbox'),
+            'default' => 'no',
+        ));
+
+        register_setting('n8n_chat_widget_options', 'n8n_chat_widget_welcome_message', array(
+            'sanitize_callback' => 'sanitize_text_field',
+            'default' => 'Hi there! How can I help you today?',
+        ));
+
+        register_setting('n8n_chat_widget_options', 'n8n_chat_widget_welcome_delay', array(
+            'sanitize_callback' => array($this, 'sanitize_welcome_delay'),
+            'default' => '3',
+        ));
+
         add_settings_section(
             'n8n_chat_widget_general',
             __('General Settings', 'n8n-chat-widget'),
@@ -305,6 +321,14 @@ class N8NCHWI_Admin {
     public function sanitize_targeting_mode($input) {
         $valid_modes = array('all', 'include', 'exclude');
         return in_array($input, $valid_modes) ? $input : 'all';
+    }
+
+    /**
+     * Sanitize welcome delay value.
+     */
+    public function sanitize_welcome_delay($input) {
+        $input = absint($input);
+        return max(0, min(60, $input)); // Limit delay between 0 and 60 seconds
     }
 
     /**
@@ -972,6 +996,50 @@ class N8NCHWI_Admin {
 
         echo '</div>'; // End group content
         echo '</div>'; // End targeting group
+
+        // ========== GROUP 5: ENGAGEMENT ==========
+        $welcome_enabled = get_option('n8n_chat_widget_welcome_enabled', 'no');
+        $welcome_message = get_option('n8n_chat_widget_welcome_message', 'Hi there! How can I help you today?');
+        $welcome_delay = get_option('n8n_chat_widget_welcome_delay', '3');
+
+        echo '<div class="n8n-settings-group n8n-settings-group-engagement">';
+        echo '<div class="n8n-settings-group-header" data-group="engagement">';
+        echo '<span class="dashicons dashicons-megaphone"></span>';
+        echo '<h4>' . esc_html__('Engagement', 'n8n-chat-widget') . '</h4>';
+        echo '<span class="n8n-group-toggle dashicons dashicons-arrow-up-alt2"></span>';
+        echo '</div>';
+        echo '<div class="n8n-settings-group-content" id="group-engagement">';
+
+        // Welcome message toggle
+        echo '<div class="n8n-setting-field">';
+        echo '<label for="n8n_chat_widget_welcome_enabled">' . esc_html__('Welcome Message', 'n8n-chat-widget') . '</label>';
+        echo '<label class="n8n-toggle-wrapper">';
+        echo '<input type="checkbox" id="n8n_chat_widget_welcome_enabled" name="n8n_chat_widget_welcome_enabled" value="yes" ' . checked('yes', $welcome_enabled, false) . ' />';
+        echo '<span class="n8n-toggle-slider"></span>';
+        echo '<span class="n8n-toggle-label">' . esc_html__('Show welcome message to visitors', 'n8n-chat-widget') . '</span>';
+        echo '</label>';
+        echo '<p class="description">' . esc_html__('Display a friendly greeting to encourage chat engagement', 'n8n-chat-widget') . '</p>';
+        echo '</div>';
+
+        // Welcome message content (shown when enabled)
+        echo '<div class="n8n-setting-field n8n-welcome-message-field" id="welcome-message-wrapper" style="' . ($welcome_enabled !== 'yes' ? 'display: none;' : '') . '">';
+        echo '<label for="n8n_chat_widget_welcome_message">' . esc_html__('Message Text', 'n8n-chat-widget') . '</label>';
+        echo '<textarea id="n8n_chat_widget_welcome_message" name="n8n_chat_widget_welcome_message" rows="3" class="large-text" placeholder="' . esc_attr__('Hi there! How can I help you today?', 'n8n-chat-widget') . '">' . esc_textarea($welcome_message) . '</textarea>';
+        echo '<p class="description">' . esc_html__('Keep it short and friendly. Max 150 characters recommended.', 'n8n-chat-widget') . '</p>';
+        echo '</div>';
+
+        // Welcome message delay
+        echo '<div class="n8n-setting-field n8n-welcome-delay-field" id="welcome-delay-wrapper" style="' . ($welcome_enabled !== 'yes' ? 'display: none;' : '') . '">';
+        echo '<label for="n8n_chat_widget_welcome_delay">' . esc_html__('Display Delay', 'n8n-chat-widget') . '</label>';
+        echo '<div class="n8n-delay-input-wrapper">';
+        echo '<input type="number" id="n8n_chat_widget_welcome_delay" name="n8n_chat_widget_welcome_delay" value="' . esc_attr($welcome_delay) . '" min="0" max="60" step="1" />';
+        echo '<span class="n8n-delay-unit">' . esc_html__('seconds', 'n8n-chat-widget') . '</span>';
+        echo '</div>';
+        echo '<p class="description">' . esc_html__('Time before the welcome message appears (0-60 seconds)', 'n8n-chat-widget') . '</p>';
+        echo '</div>';
+
+        echo '</div>'; // End group content
+        echo '</div>'; // End engagement group
     }
 
     /**

@@ -1131,4 +1131,61 @@
     background: #f8f8f8 !important;
     border-radius: 8px !important;
     flex-shrink: 0 !important;
+}
+
+/* Welcome message settings */
+.n8n-welcome-message-field textarea {
+    width: 100%;
+    min-height: 80px;
+    padding: 12px;
+    border: 2px solid var(--n8n-admin-border);
+    border-radius: var(--n8n-admin-radius);
+    font-size: 14px;
+    line-height: 1.5;
+    transition: all var(--n8n-admin-transition);
+    resize: vertical;
+}
+
+.n8n-welcome-message-field textarea:focus {
+    border-color: var(--n8n-admin-primary);
+    box-shadow: 0 0 0 3px rgba(69, 211, 211, 0.1);
+    outline: none;
+}
+
+.n8n-delay-input-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.n8n-delay-input-wrapper input[type="number"] {
+    width: 80px;
+    padding: 10px 12px;
+    border: 2px solid var(--n8n-admin-border);
+    border-radius: var(--n8n-admin-radius);
+    font-size: 14px;
+    font-weight: 600;
+    text-align: center;
+    transition: all var(--n8n-admin-transition);
+}
+
+.n8n-delay-input-wrapper input[type="number"]:focus {
+    border-color: var(--n8n-admin-primary);
+    box-shadow: 0 0 0 3px rgba(69, 211, 211, 0.1);
+    outline: none;
+}
+
+.n8n-delay-unit {
+    font-size: 14px;
+    color: #666;
+    font-weight: 500;
+}
+
+/* Engagement group styling */
+.n8n-settings-group-engagement .n8n-settings-group-header {
+    background: linear-gradient(135deg, rgba(255, 185, 0, 0.08) 0%, rgba(255, 165, 0, 0.05) 100%);
+}
+
+.n8n-settings-group-engagement .n8n-settings-group-header .dashicons {
+    color: #f59e0b;
 } 

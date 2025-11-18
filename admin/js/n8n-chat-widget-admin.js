@@ -215,6 +215,19 @@
             }
         });
 
+        // ========== WELCOME MESSAGE TOGGLE ==========
+        $('#n8n_chat_widget_welcome_enabled').on('change', function() {
+            const isEnabled = $(this).is(':checked');
+
+            if (isEnabled) {
+                $('#welcome-message-wrapper').slideDown(200);
+                $('#welcome-delay-wrapper').slideDown(200);
+            } else {
+                $('#welcome-message-wrapper').slideUp(200);
+                $('#welcome-delay-wrapper').slideUp(200);
+            }
+        });
+
         // Function to update all color elements in the preview
         function updateColorInPreview(colorValue) {
             // Update header background

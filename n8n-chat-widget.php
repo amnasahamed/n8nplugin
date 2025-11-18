@@ -49,6 +49,11 @@ function n8nchwi_activate() {
     add_option('n8n_chat_widget_targeting_mode', 'all'); // all, include, exclude
     add_option('n8n_chat_widget_targeting_pages', ''); // comma-separated page IDs or URLs
     add_option('n8n_chat_widget_hide_on_mobile', 'no');
+
+    // Welcome message options
+    add_option('n8n_chat_widget_welcome_enabled', 'no');
+    add_option('n8n_chat_widget_welcome_message', 'Hi there! How can I help you today?');
+    add_option('n8n_chat_widget_welcome_delay', '3');
 }
 
 /**
@@ -89,6 +94,9 @@ function n8nchwi_get_options() {
             'targeting_mode' => get_option('n8n_chat_widget_targeting_mode', 'all'),
             'targeting_pages' => get_option('n8n_chat_widget_targeting_pages', ''),
             'hide_on_mobile' => get_option('n8n_chat_widget_hide_on_mobile', 'no'),
+            'welcome_enabled' => get_option('n8n_chat_widget_welcome_enabled', 'no'),
+            'welcome_message' => get_option('n8n_chat_widget_welcome_message', 'Hi there! How can I help you today?'),
+            'welcome_delay' => get_option('n8n_chat_widget_welcome_delay', '3'),
         );
     }
 
@@ -213,7 +221,10 @@ function n8nchwi_enqueue_scripts() {
             'icon' => esc_attr($options['icon']),
             'iconType' => esc_attr($options['icon_type']),
             'svgIcon' => esc_attr($options['svg_icon']),
-            'zoom' => $zoom
+            'zoom' => $zoom,
+            'welcomeEnabled' => esc_attr($options['welcome_enabled']),
+            'welcomeMessage' => esc_html($options['welcome_message']),
+            'welcomeDelay' => intval($options['welcome_delay'])
         ));
 
         // Set CSS custom properties for theme colors
