@@ -1376,4 +1376,58 @@
 
 .n8n-color-contrast.warning .dashicons::before {
     content: "\f534"; /* warning icon */
+}
+
+/* ========== ICON LIBRARY CATEGORIES ========== */
+.n8n-icon-library {
+    margin-bottom: 12px;
+}
+
+.n8n-icon-category {
+    margin-bottom: 12px;
+    border: 1px solid var(--n8n-admin-border);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.n8n-icon-category-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 14px;
+    background: var(--n8n-admin-bg);
+    cursor: pointer;
+    user-select: none;
+    transition: background var(--n8n-admin-transition);
+}
+
+.n8n-icon-category-header:hover {
+    background: #f0f1f2;
+}
+
+.n8n-category-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: #444;
+}
+
+.n8n-category-toggle {
+    color: #888;
+    font-size: 14px;
+    transition: transform var(--n8n-admin-transition);
+}
+
+.n8n-icon-category.collapsed .n8n-category-toggle {
+    transform: rotate(-90deg);
+}
+
+.n8n-icon-category .n8n-emoji-grid {
+    padding: 12px;
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 8px;
+}
+
+.n8n-icon-category.collapsed .n8n-emoji-grid {
+    display: none;
 } 

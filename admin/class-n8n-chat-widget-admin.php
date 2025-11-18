@@ -900,7 +900,40 @@ class N8NCHWI_Admin {
         $icon = get_option('n8n_chat_widget_icon', '💬');
         $svg_icon = get_option('n8n_chat_widget_svg_icon', '');
         $zoom = get_option('n8n_chat_widget_zoom', '100');
-        $popular_icons = array('💬', '🤖', '💻', '🔔', '📨', '📝', '🎯', '🔍', '📱', '👋');
+
+        // Professional icon library organized by category
+        $icon_categories = array(
+            'chat' => array(
+                'label' => __('Chat & Communication', 'n8n-chat-widget'),
+                'icons' => array('💬', '💭', '🗨️', '📣', '📢', '🗣️', '💁', '👋', '🤝', '✋'),
+            ),
+            'tech' => array(
+                'label' => __('Technology', 'n8n-chat-widget'),
+                'icons' => array('🤖', '💻', '📱', '🖥️', '⌨️', '🖱️', '🔌', '💡', '⚡', '🔧'),
+            ),
+            'business' => array(
+                'label' => __('Business', 'n8n-chat-widget'),
+                'icons' => array('📊', '📈', '💼', '📋', '📝', '✅', '🎯', '🏆', '⭐', '💎'),
+            ),
+            'notification' => array(
+                'label' => __('Alerts & Notifications', 'n8n-chat-widget'),
+                'icons' => array('🔔', '🔕', '📨', '📩', '📧', '📬', '📮', '✉️', '💌', '📤'),
+            ),
+            'support' => array(
+                'label' => __('Support & Help', 'n8n-chat-widget'),
+                'icons' => array('❓', '❔', '🔍', '🔎', '📖', '📚', '📌', '🎓', '💡', '🛟'),
+            ),
+            'emotion' => array(
+                'label' => __('Friendly & Fun', 'n8n-chat-widget'),
+                'icons' => array('😊', '😀', '🙂', '😎', '🤗', '💪', '🎉', '🎊', '🌟', '✨'),
+            ),
+        );
+
+        // Flatten for backward compatibility
+        $popular_icons = array();
+        foreach ($icon_categories as $category) {
+            $popular_icons = array_merge($popular_icons, array_slice($category['icons'], 0, 2));
+        }
 
         // ========== GROUP 1: CONNECTION ==========
         echo '<div class="n8n-settings-group n8n-settings-group-connection">';
@@ -1045,12 +1078,25 @@ class N8NCHWI_Admin {
         echo '<div class="n8n-emoji-input-wrapper">';
         echo '<input type="text" id="n8n_chat_widget_icon" name="n8n_chat_widget_icon" value="' . esc_attr($icon) . '" maxlength="2" />';
         echo '</div>';
-        echo '<div class="n8n-emoji-grid">';
-        foreach ($popular_icons as $emoji) {
-            $selected_class = ($emoji === $icon) ? ' selected' : '';
-            echo '<button type="button" class="n8n-emoji-option' . $selected_class . '">' . esc_html($emoji) . '</button>';
+
+        // Icon library with categories
+        echo '<div class="n8n-icon-library">';
+        foreach ($icon_categories as $cat_key => $category) {
+            echo '<div class="n8n-icon-category">';
+            echo '<div class="n8n-icon-category-header" data-category="' . esc_attr($cat_key) . '">';
+            echo '<span class="n8n-category-label">' . esc_html($category['label']) . '</span>';
+            echo '<span class="n8n-category-toggle dashicons dashicons-arrow-down-alt2"></span>';
+            echo '</div>';
+            echo '<div class="n8n-emoji-grid" id="icon-category-' . esc_attr($cat_key) . '">';
+            foreach ($category['icons'] as $emoji) {
+                $selected_class = ($emoji === $icon) ? ' selected' : '';
+                echo '<button type="button" class="n8n-emoji-option' . $selected_class . '">' . esc_html($emoji) . '</button>';
+            }
+            echo '</div>';
+            echo '</div>';
         }
         echo '</div>';
+        echo '<p class="description" style="margin-top: 12px;">' . esc_html__('60 icons organized by category. Click any icon to select it.', 'n8n-chat-widget') . '</p>';
         echo '</div>';
 
         // SVG icon section

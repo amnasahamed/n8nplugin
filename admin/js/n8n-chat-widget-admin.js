@@ -172,6 +172,12 @@
             $(this).addClass('selected');
         });
 
+        // ========== ICON CATEGORY TOGGLE ==========
+        $('.n8n-icon-category-header').on('click', function() {
+            const $category = $(this).closest('.n8n-icon-category');
+            $category.toggleClass('collapsed');
+        });
+
         // ========== ZOOM PRESETS ==========
         $('.n8n-zoom-preset').on('click', function() {
             const zoom = $(this).data('zoom');
