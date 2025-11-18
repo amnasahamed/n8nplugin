@@ -114,6 +114,91 @@
             $('#n8n-connection-message').hide();
         });
 
+        // ========== SETTINGS GROUP COLLAPSE ==========
+        $('.n8n-settings-group-header').on('click', function() {
+            const $group = $(this).closest('.n8n-settings-group');
+            $group.toggleClass('collapsed');
+        });
+
+        // ========== POSITION SELECTOR ==========
+        $('.n8n-position-option input').on('change', function() {
+            const $options = $('.n8n-position-option');
+            $options.removeClass('selected');
+            $(this).closest('.n8n-position-option').addClass('selected');
+
+            // Update preview position text
+            const position = $(this).val();
+            if (typeof n8nchwiSettings !== 'undefined' && n8nchwiSettings.positionTemplate) {
+                const positionText = n8nchwiSettings.positionTemplate.replace('%s', position);
+                $('#preview-position-text').text(positionText);
+            }
+        });
+
+        // ========== ICON TABS ==========
+        $('.n8n-icon-tab').on('click', function() {
+            const tab = $(this).data('tab');
+
+            // Update tab buttons
+            $('.n8n-icon-tab').removeClass('active');
+            $(this).addClass('active');
+
+            // Update tab content
+            $('.n8n-icon-tab-content').removeClass('active');
+            $('#' + tab + '-icon-section').addClass('active');
+
+            // Update hidden input
+            $('#n8n_chat_widget_icon_type').val(tab);
+
+            // Update preview
+            if (tab === 'emoji') {
+                const emoji = $('#n8n_chat_widget_icon').val() || '💬';
+                $('#preview-button-icon').html(emoji);
+            } else {
+                const svgUrl = $('#n8n_chat_widget_svg_icon').val();
+                if (svgUrl) {
+                    $('#preview-button-icon').html('<img src="' + svgUrl + '" alt="Icon" style="max-width: 60%; max-height: 60%; filter: brightness(0) invert(1);">');
+                }
+            }
+        });
+
+        // ========== EMOJI GRID ==========
+        $('.n8n-emoji-option').on('click', function() {
+            const emoji = $(this).text();
+            $('#n8n_chat_widget_icon').val(emoji);
+            $('#preview-button-icon').text(emoji);
+
+            // Update selected state
+            $('.n8n-emoji-option').removeClass('selected');
+            $(this).addClass('selected');
+        });
+
+        // ========== ZOOM PRESETS ==========
+        $('.n8n-zoom-preset').on('click', function() {
+            const zoom = $(this).data('zoom');
+
+            // Update preset buttons
+            $('.n8n-zoom-preset').removeClass('active');
+            $(this).addClass('active');
+
+            // Update inputs
+            $('#n8n_chat_widget_zoom').val(zoom);
+            $('#n8n_chat_widget_zoom_slider').val(zoom);
+
+            // Update preview
+            updateZoomPreview(zoom);
+        });
+
+        // Update preset buttons when slider changes
+        $('#n8n_chat_widget_zoom_slider, #n8n_chat_widget_zoom').on('input', function() {
+            const zoom = parseInt($(this).val());
+
+            // Update preset button states
+            $('.n8n-zoom-preset').each(function() {
+                const presetZoom = parseInt($(this).data('zoom'));
+                $(this).toggleClass('active', presetZoom === zoom);
+            });
+        });
+
         // Function to update all color elements in the preview
         function updateColorInPreview(colorValue) {
             // Update header background

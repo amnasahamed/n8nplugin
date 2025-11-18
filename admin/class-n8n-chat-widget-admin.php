@@ -694,13 +694,33 @@ class N8NCHWI_Admin {
      * Custom method to render settings fields
      */
     private function render_settings_fields() {
+        // Get all options
+        $url = get_option('n8n_chat_widget_url');
+        $enabled = get_option('n8n_chat_widget_enabled', 'yes');
+        $position = get_option('n8n_chat_widget_position', 'right');
+        $title = get_option('n8n_chat_widget_title', 'Chat Support');
+        $color = get_option('n8n_chat_widget_color', '#45d3d3');
+        $icon_type = get_option('n8n_chat_widget_icon_type', 'emoji');
+        $icon = get_option('n8n_chat_widget_icon', '💬');
+        $svg_icon = get_option('n8n_chat_widget_svg_icon', '');
+        $zoom = get_option('n8n_chat_widget_zoom', '100');
+        $popular_icons = array('💬', '🤖', '💻', '🔔', '📨', '📝', '🎯', '🔍', '📱', '👋');
+
+        // ========== GROUP 1: CONNECTION ==========
+        echo '<div class="n8n-settings-group n8n-settings-group-connection">';
+        echo '<div class="n8n-settings-group-header" data-group="connection">';
+        echo '<span class="dashicons dashicons-admin-links"></span>';
+        echo '<h4>' . esc_html__('Connection', 'n8n-chat-widget') . '</h4>';
+        echo '<span class="n8n-group-toggle dashicons dashicons-arrow-up-alt2"></span>';
+        echo '</div>';
+        echo '<div class="n8n-settings-group-content" id="group-connection">';
+
         // Chat URL field
-        echo '<div class="n8n-setting-field n8n-url-field" style="margin-bottom: 20px;">';
-        echo '<label for="n8n_chat_widget_url" style="display: block; font-weight: 600; margin-bottom: 8px;">' . esc_html__('n8n Chat URL', 'n8n-chat-widget') . '</label>';
+        echo '<div class="n8n-setting-field n8n-url-field">';
+        echo '<label for="n8n_chat_widget_url">' . esc_html__('n8n Chat URL', 'n8n-chat-widget') . '</label>';
 
         // Connection status indicator
-        $url = get_option('n8n_chat_widget_url');
-        echo '<div class="n8n-connection-status-wrapper" style="margin-bottom: 8px;">';
+        echo '<div class="n8n-connection-status-wrapper">';
         echo '<span id="n8n-connection-status" class="n8n-connection-status' . (empty($url) ? '' : ' status-unknown') . '">';
         if (!empty($url)) {
             echo '<span class="status-dot"></span>';
@@ -709,151 +729,166 @@ class N8NCHWI_Admin {
         echo '</span>';
         echo '</div>';
 
-        echo '<div class="n8n-url-input-wrapper" style="display: flex; align-items: center; gap: 8px;">';
-        echo '<input type="url" id="n8n_chat_widget_url" name="n8n_chat_widget_url" value="' . esc_attr($url) . '" class="regular-text" style="flex: 1;" placeholder="https://n8n.example.com/webhook/your-chat-id/chat" />';
+        echo '<div class="n8n-url-input-wrapper">';
+        echo '<input type="url" id="n8n_chat_widget_url" name="n8n_chat_widget_url" value="' . esc_attr($url) . '" class="regular-text" placeholder="https://n8n.example.com/webhook/your-chat-id/chat" />';
         echo '<button type="button" id="n8n-test-connection" class="button button-secondary">' . esc_html__('Test Connection', 'n8n-chat-widget') . '</button>';
         echo '</div>';
 
-        echo '<div id="n8n-connection-message" class="n8n-connection-message" style="display: none; margin-top: 8px; padding: 8px 12px; border-radius: 4px;"></div>';
+        echo '<div id="n8n-connection-message" class="n8n-connection-message"></div>';
 
-        echo '<p class="description" style="margin-top: 8px;">' . esc_html__('Enter the full URL of your n8n chat webhook.', 'n8n-chat-widget') . '</p>';
-        echo '<details class="chat-url-help" style="margin-top: 10px;">';
-        echo '<summary style="cursor: pointer; color: #0073aa; font-weight: 500; margin-bottom: 10px;">' . esc_html__('Need help getting your Chat URL?', 'n8n-chat-widget') . '</summary>';
-        echo '<div style="padding: 15px; background: #f8f8f8; border-left: 4px solid #45d3d3; border-radius: 4px; margin-top: 5px;">';
+        echo '<details class="chat-url-help">';
+        echo '<summary>' . esc_html__('Need help getting your Chat URL?', 'n8n-chat-widget') . '</summary>';
+        echo '<div class="chat-url-help-content">';
         echo '<p><strong>' . esc_html__('How to get your n8n Chat URL:', 'n8n-chat-widget') . '</strong></p>';
-        echo '<ol style="margin-left: 20px; margin-bottom: 10px;">';
+        echo '<ol>';
         echo '<li>' . esc_html__('Set up a workflow in n8n using the Chat Trigger node', 'n8n-chat-widget') . '</li>';
         echo '<li>' . esc_html__('Connect it to an AI agent or chain', 'n8n-chat-widget') . '</li>';
         echo '<li>' . esc_html__('Enable "Make Chat Publicly Available" in the Chat Trigger node', 'n8n-chat-widget') . '</li>';
         echo '<li>' . esc_html__('Set Mode to "Hosted Chat" (recommended)', 'n8n-chat-widget') . '</li>';
         echo '<li>' . esc_html__('Activate your workflow and copy the Chat URL', 'n8n-chat-widget') . '</li>';
         echo '</ol>';
-        echo '<p>';
-        echo '<a href="https://docs.n8n.io/integrations/builtin/core-nodes/n8n-nodes-langchain.chattrigger/" target="_blank" style="margin-right: 15px;"><span class="dashicons dashicons-media-document" style="margin-right: 3px;"></span>' . esc_html__('n8n Chat Trigger Documentation', 'n8n-chat-widget') . '</a>';
-        echo '<a href="https://www.youtube.com/watch?v=qirFuwSgrfw" target="_blank"><span class="dashicons dashicons-video-alt3" style="margin-right: 3px;"></span>' . esc_html__('Video Tutorial', 'n8n-chat-widget') . '</a>';
+        echo '<p class="help-links">';
+        echo '<a href="https://docs.n8n.io/integrations/builtin/core-nodes/n8n-nodes-langchain.chattrigger/" target="_blank"><span class="dashicons dashicons-media-document"></span>' . esc_html__('Documentation', 'n8n-chat-widget') . '</a>';
+        echo '<a href="https://www.youtube.com/watch?v=qirFuwSgrfw" target="_blank"><span class="dashicons dashicons-video-alt3"></span>' . esc_html__('Video Tutorial', 'n8n-chat-widget') . '</a>';
         echo '</p>';
         echo '</div>';
         echo '</details>';
         echo '</div>';
-        
+
         // Enable widget field
-        echo '<div class="n8n-setting-field" style="margin-bottom: 20px;">';
-        echo '<label for="n8n_chat_widget_enabled" style="display: block; font-weight: 600; margin-bottom: 8px;">' . esc_html__('Enable Chat Widget', 'n8n-chat-widget') . '</label>';
-        $enabled = get_option('n8n_chat_widget_enabled', 'yes');
-        echo '<label>';
+        echo '<div class="n8n-setting-field">';
+        echo '<label for="n8n_chat_widget_enabled">' . esc_html__('Widget Status', 'n8n-chat-widget') . '</label>';
+        echo '<label class="n8n-toggle-wrapper">';
         echo '<input type="checkbox" id="n8n_chat_widget_enabled" name="n8n_chat_widget_enabled" value="yes" ' . checked('yes', $enabled, false) . ' />';
-        echo esc_html__('Enable chat widget on the website', 'n8n-chat-widget');
+        echo '<span class="n8n-toggle-slider"></span>';
+        echo '<span class="n8n-toggle-label">' . esc_html__('Show widget on website', 'n8n-chat-widget') . '</span>';
         echo '</label>';
         echo '</div>';
-        
+
+        echo '</div>'; // End group content
+        echo '</div>'; // End connection group
+
+        // ========== GROUP 2: APPEARANCE ==========
+        echo '<div class="n8n-settings-group n8n-settings-group-appearance">';
+        echo '<div class="n8n-settings-group-header" data-group="appearance">';
+        echo '<span class="dashicons dashicons-admin-appearance"></span>';
+        echo '<h4>' . esc_html__('Appearance', 'n8n-chat-widget') . '</h4>';
+        echo '<span class="n8n-group-toggle dashicons dashicons-arrow-up-alt2"></span>';
+        echo '</div>';
+        echo '<div class="n8n-settings-group-content" id="group-appearance">';
+
         // Position field
-        echo '<div class="n8n-setting-field" style="margin-bottom: 20px;">';
-        echo '<label for="n8n_chat_widget_position" style="display: block; font-weight: 600; margin-bottom: 8px;">' . esc_html__('Widget Position', 'n8n-chat-widget') . '</label>';
-        $position = get_option('n8n_chat_widget_position', 'right');
-        echo '<select id="n8n_chat_widget_position" name="n8n_chat_widget_position">';
-        echo '<option value="right" ' . selected('right', $position, false) . '>' . esc_html__('Right', 'n8n-chat-widget') . '</option>';
-        echo '<option value="left" ' . selected('left', $position, false) . '>' . esc_html__('Left', 'n8n-chat-widget') . '</option>';
-        echo '</select>';
-        echo '<p class="description">' . esc_html__('Select the position of the chat widget button.', 'n8n-chat-widget') . '</p>';
+        echo '<div class="n8n-setting-field">';
+        echo '<label>' . esc_html__('Widget Position', 'n8n-chat-widget') . '</label>';
+        echo '<div class="n8n-position-selector">';
+        echo '<label class="n8n-position-option' . ($position === 'left' ? ' selected' : '') . '">';
+        echo '<input type="radio" name="n8n_chat_widget_position" value="left" ' . checked('left', $position, false) . ' />';
+        echo '<span class="n8n-position-icon"><span class="dashicons dashicons-align-left"></span></span>';
+        echo '<span class="n8n-position-label">' . esc_html__('Left', 'n8n-chat-widget') . '</span>';
+        echo '</label>';
+        echo '<label class="n8n-position-option' . ($position === 'right' ? ' selected' : '') . '">';
+        echo '<input type="radio" name="n8n_chat_widget_position" value="right" ' . checked('right', $position, false) . ' />';
+        echo '<span class="n8n-position-icon"><span class="dashicons dashicons-align-right"></span></span>';
+        echo '<span class="n8n-position-label">' . esc_html__('Right', 'n8n-chat-widget') . '</span>';
+        echo '</label>';
         echo '</div>';
-        
-        // Title field
-        echo '<div class="n8n-setting-field" style="margin-bottom: 20px;">';
-        echo '<label for="n8n_chat_widget_title" style="display: block; font-weight: 600; margin-bottom: 8px;">' . esc_html__('Chat Widget Title', 'n8n-chat-widget') . '</label>';
-        $title = get_option('n8n_chat_widget_title', 'Chat Support');
-        echo '<input type="text" id="n8n_chat_widget_title" name="n8n_chat_widget_title" value="' . esc_attr($title) . '" class="regular-text" />';
-        echo '<p class="description">' . esc_html__('Enter the title for the chat widget.', 'n8n-chat-widget') . '</p>';
         echo '</div>';
-        
+
         // Color field
-        echo '<div class="n8n-setting-field" style="margin-bottom: 20px;">';
-        echo '<label for="n8n_chat_widget_color" style="display: block; font-weight: 600; margin-bottom: 8px;">' . esc_html__('Widget Color', 'n8n-chat-widget') . '</label>';
-        $color = get_option('n8n_chat_widget_color', '#45d3d3');
+        echo '<div class="n8n-setting-field">';
+        echo '<label for="n8n_chat_widget_color">' . esc_html__('Widget Color', 'n8n-chat-widget') . '</label>';
         echo '<input type="text" id="n8n_chat_widget_color" name="n8n_chat_widget_color" value="' . esc_attr($color) . '" class="n8n-color-picker" data-default-color="#45d3d3" />';
-        echo '<p class="description">' . esc_html__('Select the primary color for the chat widget.', 'n8n-chat-widget') . '</p>';
         echo '</div>';
-        
+
         // Icon settings
-        echo '<div class="n8n-setting-field" style="margin-bottom: 20px;">';
-        echo '<label style="display: block; font-weight: 600; margin-bottom: 8px;">' . esc_html__('Chat Icon', 'n8n-chat-widget') . '</label>';
-        $icon_type = get_option('n8n_chat_widget_icon_type', 'emoji');
-        $icon = get_option('n8n_chat_widget_icon', '💬');
-        $svg_icon = get_option('n8n_chat_widget_svg_icon', '');
-        $popular_icons = array('💬', '🤖', '💻', '🔔', '📨', '📝', '🎯', '🔍', '📱', '👋');
-        
-        // Icon type selector
-        echo '<div class="icon-type-selector" style="margin-bottom: 15px;">';
-        echo '<label style="margin-right: 15px;">';
-        echo '<input type="radio" name="n8n_chat_widget_icon_type" value="emoji" ' . checked('emoji', $icon_type, false) . ' />';
-        echo esc_html__('Use Emoji', 'n8n-chat-widget');
-        echo '</label>';
-        echo '<label>';
-        echo '<input type="radio" name="n8n_chat_widget_icon_type" value="svg" ' . checked('svg', $icon_type, false) . ' />';
-        echo esc_html__('Use SVG Icon', 'n8n-chat-widget');
-        echo '</label>';
+        echo '<div class="n8n-setting-field">';
+        echo '<label>' . esc_html__('Chat Icon', 'n8n-chat-widget') . '</label>';
+
+        // Icon type selector tabs
+        echo '<div class="n8n-icon-tabs">';
+        echo '<button type="button" class="n8n-icon-tab' . ($icon_type === 'emoji' ? ' active' : '') . '" data-tab="emoji">' . esc_html__('Emoji', 'n8n-chat-widget') . '</button>';
+        echo '<button type="button" class="n8n-icon-tab' . ($icon_type === 'svg' ? ' active' : '') . '" data-tab="svg">' . esc_html__('Upload SVG', 'n8n-chat-widget') . '</button>';
         echo '</div>';
-        
+
+        // Hidden input for icon type
+        echo '<input type="hidden" name="n8n_chat_widget_icon_type" id="n8n_chat_widget_icon_type" value="' . esc_attr($icon_type) . '" />';
+
         // Emoji icon section
-        echo '<div id="emoji-icon-section" style="' . ($icon_type === 'emoji' ? '' : 'display: none;') . '">';
-        echo '<input type="text" id="n8n_chat_widget_icon" name="n8n_chat_widget_icon" value="' . esc_attr($icon) . '" style="width: 60px; font-size: 24px; text-align: center;" maxlength="2" />';
-        echo '<div class="icon-suggestions" style="margin-top: 10px;">';
-        echo '<p class="description">' . esc_html__('Popular icons:', 'n8n-chat-widget') . '</p>';
-        echo '<div class="icon-grid" style="display: flex; flex-wrap: wrap; gap: 10px; margin-top: 5px;">';
+        echo '<div id="emoji-icon-section" class="n8n-icon-tab-content' . ($icon_type === 'emoji' ? ' active' : '') . '">';
+        echo '<div class="n8n-emoji-input-wrapper">';
+        echo '<input type="text" id="n8n_chat_widget_icon" name="n8n_chat_widget_icon" value="' . esc_attr($icon) . '" maxlength="2" />';
+        echo '</div>';
+        echo '<div class="n8n-emoji-grid">';
         foreach ($popular_icons as $emoji) {
-            echo '<button type="button" class="icon-option" style="font-size: 24px; width: 40px; height: 40px; cursor: pointer; border: 1px solid #ddd; background: #f7f7f7;">' . esc_html($emoji) . '</button>';
+            $selected_class = ($emoji === $icon) ? ' selected' : '';
+            echo '<button type="button" class="n8n-emoji-option' . $selected_class . '">' . esc_html($emoji) . '</button>';
         }
         echo '</div>';
         echo '</div>';
-        echo '<p class="description">' . esc_html__('Choose an emoji for the chat button.', 'n8n-chat-widget') . '</p>';
-        echo '</div>';
-        
+
         // SVG icon section
-        echo '<div id="svg-icon-section" style="' . ($icon_type === 'svg' ? '' : 'display: none;') . '">';
-        echo '<div class="svg-upload-container" style="margin-bottom: 10px;">';
-        echo '<input type="text" id="n8n_chat_widget_svg_icon" name="n8n_chat_widget_svg_icon" value="' . esc_url($svg_icon) . '" class="regular-text" readonly style="margin-right: 10px;"/>';
-        echo '<button type="button" id="upload_svg_button" class="button">' . esc_html__('Upload SVG Icon', 'n8n-chat-widget') . '</button>';
+        echo '<div id="svg-icon-section" class="n8n-icon-tab-content' . ($icon_type === 'svg' ? ' active' : '') . '">';
+        echo '<div class="n8n-svg-upload-wrapper">';
+        echo '<input type="text" id="n8n_chat_widget_svg_icon" name="n8n_chat_widget_svg_icon" value="' . esc_url($svg_icon) . '" readonly placeholder="' . esc_attr__('No file selected', 'n8n-chat-widget') . '" />';
+        echo '<button type="button" id="upload_svg_button" class="button">' . esc_html__('Choose File', 'n8n-chat-widget') . '</button>';
         echo '</div>';
-        
+
         if (!empty($svg_icon)) {
-            echo '<div class="svg-preview" style="margin: 10px 0;">';
-            echo '<p class="description">' . esc_html__('Current icon:', 'n8n-chat-widget') . '</p>';
-            echo '<div style="width: 60px; height: 60px; border: 1px solid #ddd; border-radius: 50%; overflow: hidden; display: flex; align-items: center; justify-content: center; background-color: ' . esc_attr(get_option('n8n_chat_widget_color', '#45d3d3')) . ';">';
-            
-            // Try to get attachment ID from URL
+            echo '<div class="n8n-svg-preview">';
+            echo '<div class="n8n-svg-preview-circle" style="background-color: ' . esc_attr($color) . ';">';
             $attachment_id = attachment_url_to_postid($svg_icon);
             if ($attachment_id) {
-                echo wp_get_attachment_image($attachment_id, array(24, 24), false, array(
-                    'style' => 'max-width: 60%; max-height: 60%;',
-                    'alt' => esc_attr__('SVG Icon', 'n8n-chat-widget')
-                ));
+                echo wp_get_attachment_image($attachment_id, array(24, 24), false, array('alt' => esc_attr__('SVG Icon', 'n8n-chat-widget')));
             } else {
-                // Use the helper function for proper display
-                echo wp_kses_post(n8nchwi_display_svg($svg_icon, array(24, 24), array(
-                    'style' => 'max-width: 60%; max-height: 60%;',
-                    'alt' => esc_attr__('SVG Icon', 'n8n-chat-widget')
-                )));
+                echo wp_kses_post(n8nchwi_display_svg($svg_icon, array(24, 24), array('alt' => esc_attr__('SVG Icon', 'n8n-chat-widget'))));
             }
-            
             echo '</div>';
             echo '</div>';
         }
-        
-        echo '<p class="description">' . esc_html__('Upload an SVG icon for the chat button. Recommended size: 24x24px.', 'n8n-chat-widget') . '</p>';
-        echo '<p class="description">' . esc_html__('The SVG icon will be displayed inside a circular button with the chosen widget color as background.', 'n8n-chat-widget') . '</p>';
+        echo '<p class="description">' . esc_html__('Recommended: 24x24px SVG', 'n8n-chat-widget') . '</p>';
         echo '</div>';
         echo '</div>';
-        
-        // Zoom field
-        echo '<div class="n8n-setting-field" style="margin-bottom: 20px;">';
-        echo '<label for="n8n_chat_widget_zoom_slider" style="display: block; font-weight: 600; margin-bottom: 8px;">' . esc_html__('Chat Content Zoom', 'n8n-chat-widget') . '</label>';
-        $zoom = get_option('n8n_chat_widget_zoom', '100');
-        echo '<div class="zoom-control" style="display: flex; align-items: center; max-width: 400px;">';
-        echo '<input type="range" id="n8n_chat_widget_zoom_slider" min="50" max="150" step="5" value="' . esc_attr($zoom) . '" style="flex: 1; width: 100%; max-width: 400px;" />';
-        echo '<input type="number" id="n8n_chat_widget_zoom" name="n8n_chat_widget_zoom" value="' . esc_attr($zoom) . '" min="50" max="150" step="5" style="width: 65px; margin-left: 10px;" />';
-        echo '<span style="margin-left: 5px;">%</span>';
+
+        echo '</div>'; // End group content
+        echo '</div>'; // End appearance group
+
+        // ========== GROUP 3: DISPLAY ==========
+        echo '<div class="n8n-settings-group n8n-settings-group-display">';
+        echo '<div class="n8n-settings-group-header" data-group="display">';
+        echo '<span class="dashicons dashicons-visibility"></span>';
+        echo '<h4>' . esc_html__('Display', 'n8n-chat-widget') . '</h4>';
+        echo '<span class="n8n-group-toggle dashicons dashicons-arrow-up-alt2"></span>';
         echo '</div>';
-        echo '<p class="description">' . esc_html__('Adjust the zoom level of the chat content (50% - 150%).', 'n8n-chat-widget') . '</p>';
+        echo '<div class="n8n-settings-group-content" id="group-display">';
+
+        // Title field
+        echo '<div class="n8n-setting-field">';
+        echo '<label for="n8n_chat_widget_title">' . esc_html__('Chat Title', 'n8n-chat-widget') . '</label>';
+        echo '<input type="text" id="n8n_chat_widget_title" name="n8n_chat_widget_title" value="' . esc_attr($title) . '" class="regular-text" placeholder="' . esc_attr__('Chat Support', 'n8n-chat-widget') . '" />';
+        echo '<p class="description">' . esc_html__('Displayed in the chat header', 'n8n-chat-widget') . '</p>';
         echo '</div>';
+
+        // Zoom field with presets
+        echo '<div class="n8n-setting-field">';
+        echo '<label for="n8n_chat_widget_zoom_slider">' . esc_html__('Content Size', 'n8n-chat-widget') . '</label>';
+
+        // Zoom presets
+        echo '<div class="n8n-zoom-presets">';
+        echo '<button type="button" class="n8n-zoom-preset' . ($zoom == '75' ? ' active' : '') . '" data-zoom="75">' . esc_html__('Compact', 'n8n-chat-widget') . '</button>';
+        echo '<button type="button" class="n8n-zoom-preset' . ($zoom == '100' ? ' active' : '') . '" data-zoom="100">' . esc_html__('Normal', 'n8n-chat-widget') . '</button>';
+        echo '<button type="button" class="n8n-zoom-preset' . ($zoom == '125' ? ' active' : '') . '" data-zoom="125">' . esc_html__('Large', 'n8n-chat-widget') . '</button>';
+        echo '</div>';
+
+        echo '<div class="n8n-zoom-custom">';
+        echo '<span class="n8n-zoom-label">' . esc_html__('Custom:', 'n8n-chat-widget') . '</span>';
+        echo '<input type="range" id="n8n_chat_widget_zoom_slider" min="50" max="150" step="5" value="' . esc_attr($zoom) . '" />';
+        echo '<input type="number" id="n8n_chat_widget_zoom" name="n8n_chat_widget_zoom" value="' . esc_attr($zoom) . '" min="50" max="150" step="5" />';
+        echo '<span class="n8n-zoom-unit">%</span>';
+        echo '</div>';
+        echo '</div>';
+
+        echo '</div>'; // End group content
+        echo '</div>'; // End display group
     }
 
     /**
