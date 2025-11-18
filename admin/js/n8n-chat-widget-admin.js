@@ -199,6 +199,22 @@
             });
         });
 
+        // ========== TARGETING MODE SELECTOR ==========
+        $('input[name="n8n_chat_widget_targeting_mode"]').on('change', function() {
+            const mode = $(this).val();
+
+            // Update selected state
+            $('.n8n-targeting-option').removeClass('selected');
+            $(this).closest('.n8n-targeting-option').addClass('selected');
+
+            // Show/hide pages textarea
+            if (mode === 'all') {
+                $('#targeting-pages-wrapper').slideUp(200);
+            } else {
+                $('#targeting-pages-wrapper').slideDown(200);
+            }
+        });
+
         // Function to update all color elements in the preview
         function updateColorInPreview(colorValue) {
             // Update header background

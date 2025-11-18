@@ -188,6 +188,22 @@ class N8NCHWI_Admin {
             'default' => '100',
         ));
 
+        // Page targeting settings
+        register_setting('n8n_chat_widget_options', 'n8n_chat_widget_targeting_mode', array(
+            'sanitize_callback' => array($this, 'sanitize_targeting_mode'),
+            'default' => 'all',
+        ));
+
+        register_setting('n8n_chat_widget_options', 'n8n_chat_widget_targeting_pages', array(
+            'sanitize_callback' => 'sanitize_textarea_field',
+            'default' => '',
+        ));
+
+        register_setting('n8n_chat_widget_options', 'n8n_chat_widget_hide_on_mobile', array(
+            'sanitize_callback' => array($this, 'sanitize_checkbox'),
+            'default' => 'no',
+        ));
+
         add_settings_section(
             'n8n_chat_widget_general',
             __('General Settings', 'n8n-chat-widget'),
@@ -281,6 +297,14 @@ class N8NCHWI_Admin {
     public function sanitize_zoom($input) {
         $input = absint($input);
         return max(50, min(150, $input)); // Limit zoom between 50% and 150%
+    }
+
+    /**
+     * Sanitize targeting mode.
+     */
+    public function sanitize_targeting_mode($input) {
+        $valid_modes = array('all', 'include', 'exclude');
+        return in_array($input, $valid_modes) ? $input : 'all';
     }
 
     /**
@@ -889,6 +913,65 @@ class N8NCHWI_Admin {
 
         echo '</div>'; // End group content
         echo '</div>'; // End display group
+
+        // ========== GROUP 4: TARGETING ==========
+        $targeting_mode = get_option('n8n_chat_widget_targeting_mode', 'all');
+        $targeting_pages = get_option('n8n_chat_widget_targeting_pages', '');
+        $hide_on_mobile = get_option('n8n_chat_widget_hide_on_mobile', 'no');
+
+        echo '<div class="n8n-settings-group n8n-settings-group-targeting">';
+        echo '<div class="n8n-settings-group-header" data-group="targeting">';
+        echo '<span class="dashicons dashicons-filter"></span>';
+        echo '<h4>' . esc_html__('Targeting', 'n8n-chat-widget') . '</h4>';
+        echo '<span class="n8n-group-toggle dashicons dashicons-arrow-up-alt2"></span>';
+        echo '</div>';
+        echo '<div class="n8n-settings-group-content" id="group-targeting">';
+
+        // Targeting mode
+        echo '<div class="n8n-setting-field">';
+        echo '<label>' . esc_html__('Show Widget On', 'n8n-chat-widget') . '</label>';
+        echo '<div class="n8n-targeting-mode-selector">';
+
+        echo '<label class="n8n-targeting-option' . ($targeting_mode === 'all' ? ' selected' : '') . '">';
+        echo '<input type="radio" name="n8n_chat_widget_targeting_mode" value="all" ' . checked('all', $targeting_mode, false) . ' />';
+        echo '<span class="n8n-targeting-icon"><span class="dashicons dashicons-admin-site-alt3"></span></span>';
+        echo '<span class="n8n-targeting-label">' . esc_html__('All Pages', 'n8n-chat-widget') . '</span>';
+        echo '</label>';
+
+        echo '<label class="n8n-targeting-option' . ($targeting_mode === 'include' ? ' selected' : '') . '">';
+        echo '<input type="radio" name="n8n_chat_widget_targeting_mode" value="include" ' . checked('include', $targeting_mode, false) . ' />';
+        echo '<span class="n8n-targeting-icon"><span class="dashicons dashicons-yes-alt"></span></span>';
+        echo '<span class="n8n-targeting-label">' . esc_html__('Specific Pages Only', 'n8n-chat-widget') . '</span>';
+        echo '</label>';
+
+        echo '<label class="n8n-targeting-option' . ($targeting_mode === 'exclude' ? ' selected' : '') . '">';
+        echo '<input type="radio" name="n8n_chat_widget_targeting_mode" value="exclude" ' . checked('exclude', $targeting_mode, false) . ' />';
+        echo '<span class="n8n-targeting-icon"><span class="dashicons dashicons-dismiss"></span></span>';
+        echo '<span class="n8n-targeting-label">' . esc_html__('All Except', 'n8n-chat-widget') . '</span>';
+        echo '</label>';
+
+        echo '</div>';
+        echo '</div>';
+
+        // Pages textarea (shown when include or exclude is selected)
+        echo '<div class="n8n-setting-field n8n-targeting-pages-field" id="targeting-pages-wrapper" style="' . ($targeting_mode === 'all' ? 'display: none;' : '') . '">';
+        echo '<label for="n8n_chat_widget_targeting_pages">' . esc_html__('Pages', 'n8n-chat-widget') . '</label>';
+        echo '<textarea id="n8n_chat_widget_targeting_pages" name="n8n_chat_widget_targeting_pages" rows="5" class="large-text" placeholder="' . esc_attr__("Enter page IDs or URL paths (one per line)\n\nExamples:\n42\ncontact\nblog/*\nproducts/sale", 'n8n-chat-widget') . '">' . esc_textarea($targeting_pages) . '</textarea>';
+        echo '<p class="description">' . esc_html__('Enter page IDs (numbers) or URL paths. Use * for wildcards (e.g., blog/*).', 'n8n-chat-widget') . '</p>';
+        echo '</div>';
+
+        // Hide on mobile toggle
+        echo '<div class="n8n-setting-field">';
+        echo '<label for="n8n_chat_widget_hide_on_mobile">' . esc_html__('Mobile Visibility', 'n8n-chat-widget') . '</label>';
+        echo '<label class="n8n-toggle-wrapper">';
+        echo '<input type="checkbox" id="n8n_chat_widget_hide_on_mobile" name="n8n_chat_widget_hide_on_mobile" value="yes" ' . checked('yes', $hide_on_mobile, false) . ' />';
+        echo '<span class="n8n-toggle-slider"></span>';
+        echo '<span class="n8n-toggle-label">' . esc_html__('Hide widget on mobile devices', 'n8n-chat-widget') . '</span>';
+        echo '</label>';
+        echo '</div>';
+
+        echo '</div>'; // End group content
+        echo '</div>'; // End targeting group
     }
 
     /**

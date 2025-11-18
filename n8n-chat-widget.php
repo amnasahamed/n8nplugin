@@ -44,6 +44,11 @@ function n8nchwi_activate() {
     add_option('n8n_chat_widget_icon_type', 'emoji'); // emoji or svg
     add_option('n8n_chat_widget_svg_icon', '');
     add_option('n8n_chat_widget_zoom', '100');
+
+    // Page targeting options
+    add_option('n8n_chat_widget_targeting_mode', 'all'); // all, include, exclude
+    add_option('n8n_chat_widget_targeting_pages', ''); // comma-separated page IDs or URLs
+    add_option('n8n_chat_widget_hide_on_mobile', 'no');
 }
 
 /**
@@ -81,6 +86,9 @@ function n8nchwi_get_options() {
             'icon_type' => get_option('n8n_chat_widget_icon_type', 'emoji'),
             'svg_icon' => get_option('n8n_chat_widget_svg_icon', ''),
             'zoom' => get_option('n8n_chat_widget_zoom', '100'),
+            'targeting_mode' => get_option('n8n_chat_widget_targeting_mode', 'all'),
+            'targeting_pages' => get_option('n8n_chat_widget_targeting_pages', ''),
+            'hide_on_mobile' => get_option('n8n_chat_widget_hide_on_mobile', 'no'),
         );
     }
 
@@ -88,9 +96,104 @@ function n8nchwi_get_options() {
 }
 
 /**
+ * Check if widget should display on current page
+ *
+ * @return bool Whether to show the widget
+ */
+function n8nchwi_should_display() {
+    $options = n8nchwi_get_options();
+
+    // Check if widget is enabled
+    if ($options['enabled'] !== 'yes') {
+        return false;
+    }
+
+    // Check if URL is set
+    if (empty($options['url'])) {
+        return false;
+    }
+
+    // Check mobile hiding (basic check - JS will handle actual mobile detection)
+    if ($options['hide_on_mobile'] === 'yes' && wp_is_mobile()) {
+        return false;
+    }
+
+    // Check page targeting
+    $targeting_mode = $options['targeting_mode'];
+
+    if ($targeting_mode === 'all') {
+        return true;
+    }
+
+    // Get current URL path
+    $current_url = isset($_SERVER['REQUEST_URI']) ? sanitize_text_field(wp_unslash($_SERVER['REQUEST_URI'])) : '';
+    $current_page_id = get_queried_object_id();
+
+    // Parse targeting pages
+    $targeting_pages = array_map('trim', explode("\n", $options['targeting_pages']));
+    $targeting_pages = array_filter($targeting_pages); // Remove empty lines
+
+    if (empty($targeting_pages)) {
+        // If no pages specified, show on all pages (regardless of mode)
+        return true;
+    }
+
+    $page_matched = false;
+
+    foreach ($targeting_pages as $target) {
+        // Check if it's a page ID (numeric)
+        if (is_numeric($target)) {
+            if ((int)$target === $current_page_id) {
+                $page_matched = true;
+                break;
+            }
+        } else {
+            // It's a URL pattern
+            $target = trim($target, '/');
+            $current_path = trim(wp_parse_url($current_url, PHP_URL_PATH), '/');
+
+            // Check for exact match or wildcard match
+            if ($target === $current_path) {
+                $page_matched = true;
+                break;
+            }
+
+            // Support wildcard patterns (e.g., "blog/*")
+            if (strpos($target, '*') !== false) {
+                $pattern = str_replace('*', '.*', preg_quote($target, '/'));
+                if (preg_match('/^' . $pattern . '$/i', $current_path)) {
+                    $page_matched = true;
+                    break;
+                }
+            }
+
+            // Support "contains" matching
+            if (strpos($current_path, $target) !== false) {
+                $page_matched = true;
+                break;
+            }
+        }
+    }
+
+    // Return based on targeting mode
+    if ($targeting_mode === 'include') {
+        return $page_matched;
+    } elseif ($targeting_mode === 'exclude') {
+        return !$page_matched;
+    }
+
+    return true;
+}
+
+/**
  * Enqueue frontend scripts and styles
  */
 function n8nchwi_enqueue_scripts() {
+    // Check if widget should display on this page
+    if (!n8nchwi_should_display()) {
+        return;
+    }
+
     $options = n8nchwi_get_options();
 
     // Only enqueue if the widget is enabled
@@ -130,14 +233,16 @@ add_action('wp_enqueue_scripts', 'n8nchwi_enqueue_scripts');
  * Add the chat widget to the footer
  */
 function n8nchwi_add_to_footer() {
+    // Check if widget should display on this page
+    if (!n8nchwi_should_display()) {
+        return;
+    }
+
     $options = n8nchwi_get_options();
 
-    // Only add if the widget is enabled and URL is set
-    if ($options['enabled'] === 'yes' && !empty($options['url'])) {
-        // Pass options to template to avoid additional get_option() calls
-        $n8nchwi_options = $options;
-        include N8N_CHAT_WIDGET_PATH . 'public/partials/n8n-chat-widget-public-display.php';
-    }
+    // Pass options to template to avoid additional get_option() calls
+    $n8nchwi_options = $options;
+    include N8N_CHAT_WIDGET_PATH . 'public/partials/n8n-chat-widget-public-display.php';
 }
 add_action('wp_footer', 'n8nchwi_add_to_footer');
 
