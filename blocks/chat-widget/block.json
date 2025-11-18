@@ -1,0 +1,32 @@
+{
+    "$schema": "https://schemas.wp.org/trunk/block.json",
+    "apiVersion": 3,
+    "name": "n8n-chat-widget/chat-button",
+    "version": "1.0.0",
+    "title": "n8n Chat Widget",
+    "category": "widgets",
+    "icon": "format-chat",
+    "description": "Display the n8n chat widget on this page",
+    "keywords": ["chat", "widget", "n8n", "support", "bot"],
+    "supports": {
+        "html": false,
+        "align": false
+    },
+    "attributes": {
+        "showOnThisPage": {
+            "type": "boolean",
+            "default": true
+        },
+        "customTitle": {
+            "type": "string",
+            "default": ""
+        },
+        "customColor": {
+            "type": "string",
+            "default": ""
+        }
+    },
+    "textdomain": "n8n-chat-widget",
+    "editorScript": "file:./index.js",
+    "editorStyle": "file:./editor.css"
+}

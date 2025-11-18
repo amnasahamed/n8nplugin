@@ -289,4 +289,200 @@
         width: 360px;
         height: 550px;
     }
-} 
+}
+
+/* Welcome message styles */
+.n8n-chat-widget-welcome {
+    position: absolute;
+    bottom: 80px;
+    max-width: 280px;
+    padding: 16px 20px;
+    background: white;
+    border-radius: 16px;
+    box-shadow: var(--n8n-shadow-lg);
+    font-size: 14px;
+    line-height: 1.5;
+    color: #333;
+    opacity: 0;
+    transform: translateY(20px) scale(0.9);
+    transition: all var(--n8n-transition-bounce);
+    z-index: 999998;
+    cursor: pointer;
+}
+
+.n8n-chat-widget-position-right .n8n-chat-widget-welcome {
+    right: 0;
+}
+
+.n8n-chat-widget-position-left .n8n-chat-widget-welcome {
+    left: 0;
+}
+
+.n8n-chat-widget-welcome-visible {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+}
+
+.n8n-chat-widget-welcome::after {
+    content: '';
+    position: absolute;
+    bottom: -8px;
+    width: 16px;
+    height: 16px;
+    background: white;
+    border-radius: 4px;
+    transform: rotate(45deg);
+    box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.n8n-chat-widget-position-right .n8n-chat-widget-welcome::after {
+    right: 24px;
+}
+
+.n8n-chat-widget-position-left .n8n-chat-widget-welcome::after {
+    left: 24px;
+}
+
+.n8n-chat-widget-welcome-close {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    width: 20px;
+    height: 20px;
+    border: none;
+    background: rgba(0, 0, 0, 0.1);
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    color: #666;
+    transition: all var(--n8n-transition-fast);
+    padding: 0;
+    line-height: 1;
+}
+
+.n8n-chat-widget-welcome-close:hover {
+    background: rgba(0, 0, 0, 0.2);
+    color: #333;
+}
+
+.n8n-chat-widget-welcome-text {
+    padding-right: 16px;
+}
+
+/* Hide welcome message when chat is open */
+.n8n-chat-widget-open .n8n-chat-widget-welcome {
+    opacity: 0;
+    transform: translateY(20px) scale(0.9);
+    pointer-events: none;
+}
+
+/* Mobile welcome message adjustments */
+@media (max-width: 480px) {
+    .n8n-chat-widget-welcome {
+        max-width: calc(100vw - 100px);
+        bottom: 70px;
+        font-size: 13px;
+        padding: 14px 16px;
+    }
+}
+
+/* Pre-chat form styles */
+.n8n-prechat-form {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    padding: 24px;
+    box-sizing: border-box;
+}
+
+.n8n-prechat-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: #333;
+    margin: 0 0 20px 0;
+    text-align: center;
+}
+
+.n8n-prechat-fields {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.n8n-prechat-field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.n8n-prechat-field label {
+    font-size: 13px;
+    font-weight: 500;
+    color: #555;
+}
+
+.n8n-prechat-field input,
+.n8n-prechat-field textarea {
+    padding: 12px 14px;
+    border: 2px solid #e1e5e9;
+    border-radius: 8px;
+    font-size: 14px;
+    font-family: inherit;
+    transition: all 0.2s ease;
+    background: white;
+}
+
+.n8n-prechat-field input:focus,
+.n8n-prechat-field textarea:focus {
+    border-color: var(--n8n-widget-color);
+    box-shadow: 0 0 0 3px rgba(69, 211, 211, 0.1);
+    outline: none;
+}
+
+.n8n-prechat-field textarea {
+    resize: none;
+    min-height: 80px;
+}
+
+.n8n-prechat-field input.error,
+.n8n-prechat-field textarea.error {
+    border-color: #ef4444;
+}
+
+.n8n-prechat-submit {
+    margin-top: 16px;
+    padding: 14px 24px;
+    background: linear-gradient(135deg, var(--n8n-widget-color) 0%, var(--n8n-widget-color-hover) 100%);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.n8n-prechat-submit:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(69, 211, 211, 0.3);
+}
+
+.n8n-prechat-submit:active {
+    transform: translateY(0);
+}
+
+.n8n-prechat-submit:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.n8n-prechat-error {
+    color: #ef4444;
+    font-size: 12px;
+    margin-top: 4px;
+}
