@@ -362,7 +362,7 @@ function n8nchwi_enqueue_scripts() {
     // Only enqueue if the widget is enabled
     if ($options['enabled'] === 'yes') {
         wp_enqueue_style('n8n-chat-widget-style', N8N_CHAT_WIDGET_URL . 'assets/css/n8n-chat-widget.css', array(), N8N_CHAT_WIDGET_VERSION);
-        wp_enqueue_script('n8n-chat-widget-script', N8N_CHAT_WIDGET_URL . 'assets/js/n8n-chat-widget.js', array('jquery'), N8N_CHAT_WIDGET_VERSION, true);
+        wp_enqueue_script('n8n-chat-widget-script', N8N_CHAT_WIDGET_URL . 'assets/js/n8n-chat-widget.js', array(), N8N_CHAT_WIDGET_VERSION, true);
 
         // Validate and normalize zoom setting
         $zoom = max(50, min(150, intval($options['zoom'])));
